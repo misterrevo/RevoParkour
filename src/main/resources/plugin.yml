@@ -1,0 +1,6 @@
+name: RevoParkour
+version: 1.0.0
+description: Plugin na Areny Parkour
+author: Revo
+
+main: com.revo.application.Plugin
