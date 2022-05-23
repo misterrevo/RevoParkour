@@ -5,7 +5,7 @@ import com.revo.domain.Point;
 public interface PlayerSupportPort {
     void sendInvalidAreaMessage(String uuid, String areaName);
     void sendJoinMessage(String uuid, String areaName);
-    void teleportPlayerToArea(Point start);
+    void teleportPlayerToArea(String uuid, Point start);
     void sendLeaveMessage(String uuid, String name);
     void teleportPlayerToLastLocation(String uuid);
     void sendNotInAreaMessage(String uuid);

@@ -139,7 +139,7 @@ public class AreaService {
         }
         Area area = optionalArea.get();
         playerSupport.sendJoinMessage(UUID, areaName);
-        playerSupport.teleportPlayerToArea(area.getStart());
+        playerSupport.teleportPlayerToArea(UUID, area.getStart());
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
         user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint());

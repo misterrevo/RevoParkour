@@ -7,26 +7,33 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import static com.revo.application.utils.BukkitUtils.mapLocation;
+import static com.revo.application.utils.BukkitUtils.mapPlayer;
+
 public class PlayerSupport implements PlayerSupportPort {
+
+    private static final String INVALID_AREA_MESSAGE = "Area with name %s does not exists!";
+    private static final String JOIN_MESSAGE = "You are joining to area %s!";
+    private static final String LEAVE_MESSAGE = "You are leaving area %s!";
 
     @Override
     public void sendInvalidAreaMessage(String uuid, String areaName) {
-
+        mapPlayer(uuid).sendMessage(INVALID_AREA_MESSAGE.formatted(areaName));
     }
 
     @Override
     public void sendJoinMessage(String uuid, String areaName) {
-
+        mapPlayer(uuid).sendMessage(JOIN_MESSAGE.formatted(areaName));
     }
 
     @Override
-    public void teleportPlayerToArea(Point start) {
-
+    public void teleportPlayerToArea(String uuid, Point start) {
+        mapPlayer(uuid).teleport(mapLocation(start));
     }
 
     @Override
     public void sendLeaveMessage(String uuid, String name) {
-
+        mapPlayer(uuid).sendMessage(LEAVE_MESSAGE.formatted(name));
     }
 
     @Override

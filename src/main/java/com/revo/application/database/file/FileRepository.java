@@ -1,8 +1,13 @@
 package com.revo.application.database.file;
 
 import com.revo.domain.Point;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class FileRepository {
 
@@ -24,18 +29,52 @@ class FileRepository {
         return stringBuilder.toString();
     }
 
-    File getFileInFolder(String id, String folderName) {
+    YamlConfiguration getYamlConfigurationInFolder(String id, String folderName) {
         try {
             File folder = getFolder(folderName);
-            File file = new File(folder.getPath() + SLASH + id + YAML_TYPE);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            return file;
+            File file = getFileInFolder(folder, id);
+            return YamlConfiguration.loadConfiguration(file);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         return null;
+    }
+
+    private File getFileInFolder(File folder, String id){
+        try {
+            File file = buildFile(folder, id);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            return file;
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+    private File buildFile(File folder, String id) {
+        return new File(folder.getPath() + SLASH + id + YAML_TYPE);
+    }
+
+    void deleteFile(String id, String folderName){
+        File folder = getFolder(folderName);
+        File file = buildFile(folder, id);
+        file.delete();
+    }
+
+    boolean fileExists(String id, String folderName){
+        File folder = getFolder(folderName);
+        File file = buildFile(folder, id);
+        return file.exists();
+    }
+
+    void saveYamlConfiguration(YamlConfiguration yamlConfiguration, String id, String folderName){
+        try {
+            yamlConfiguration.save(getFileInFolder(getFolder(folderName), id));
+        } catch (IOException exception){
+            exception.printStackTrace();
+        }
     }
 
     File getFolder(String name){
@@ -49,6 +88,11 @@ class FileRepository {
             exception.printStackTrace();
         }
         return null;
+    }
+
+    List<YamlConfiguration> getAllYamlConfigurationsInFolder(String name){
+        File folder = getFolder(name);
+        return Stream.of(folder.listFiles()).map(file -> YamlConfiguration.loadConfiguration(file)).collect(Collectors.toList());
     }
 
     Point mapPointFromString(String string) {

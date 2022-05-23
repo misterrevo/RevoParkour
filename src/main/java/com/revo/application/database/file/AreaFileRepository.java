@@ -1,18 +1,13 @@
 package com.revo.application.database.file;
 
-import com.revo.application.utils.BukkitUtils;
 import com.revo.domain.Area;
 import com.revo.domain.port.AreaRepositoryPort;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.checkerframework.checker.units.qual.A;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AreaFileRepository extends FileRepository implements AreaRepositoryPort {
 
@@ -26,15 +21,9 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
 
     @Override
     public List<Area> findAll() {
-        File folder = getFolder(AREA_FOLDER_NAME);
         List<Area> areas = new ArrayList<>();
-        Stream.of(folder.listFiles()).forEach(file -> areas.add(mapAreaFromFile(file)));
+        getAllYamlConfigurationsInFolder(AREA_FOLDER_NAME).forEach(yaml -> areas.add(buildArea(yaml)));
         return areas;
-    }
-
-    private Area mapAreaFromFile(File file) {
-        YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
-        return buildArea(yamlConfiguration);
     }
 
     private Area buildArea(YamlConfiguration yamlConfiguration) {
@@ -50,21 +39,31 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
 
     @Override
     public Optional<Area> findByName(String name) {
-        return Optional.empty();
+        if(!existsByName(name)){
+            return Optional.ofNullable(null);
+        }
+        return Optional.of(buildArea(getYamlConfigurationInFolder(name, AREA_FOLDER_NAME)));
     }
 
     @Override
     public boolean existsByName(String name) {
-        return false;
+        return fileExists(name, AREA_FOLDER_NAME);
     }
 
     @Override
     public void save(Area area) {
-
+        YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(area.getName(), AREA_FOLDER_NAME);
+        yamlConfiguration.set(NAME_PATH, area.getName());
+        yamlConfiguration.set(AUTHOR_PATH, area.getAuthor());
+        yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString));
+        yamlConfiguration.set(START_PATH, mapPointToString(area.getStart()));
+        yamlConfiguration.set(END_PATH, mapPointToString(area.getEnd()));
+        yamlConfiguration.set(FLOOR_PATH, area.getFloor());
+        saveYamlConfiguration(yamlConfiguration, area.getName(), AREA_FOLDER_NAME);
     }
 
     @Override
     public void deleteByName(String name) {
-
+        deleteFile(name, AREA_FOLDER_NAME);
     }
 }

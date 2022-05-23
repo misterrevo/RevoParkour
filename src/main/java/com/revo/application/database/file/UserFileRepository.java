@@ -4,9 +4,7 @@ import com.revo.domain.User;
 import com.revo.domain.port.UserRepositoryPort;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,9 +21,8 @@ public class UserFileRepository extends FileRepository implements UserRepository
 
     @Override
     public User getUserByUUIDOrCreate(String uuid) {
-        File file = getFileInFolder(uuid, USERS_FOLDER_NAME);
         try {
-            YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
+            YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(uuid, USERS_FOLDER_NAME);
             if(Objects.nonNull(yamlConfiguration.get(UUID_PATH))){
                 return buildUser(yamlConfiguration);
             }
@@ -46,19 +43,14 @@ public class UserFileRepository extends FileRepository implements UserRepository
         yamlConfiguration.set(AREA_PATH, user.getArea());
         yamlConfiguration.set(LAST_CHECKPOINT_PATH, mapPointToString(user.getLastCheckPoint()));
         yamlConfiguration.set(LAST_LOCATION_PATH, mapPointToString(user.getLastLocation()));
+        saveYamlConfiguration(yamlConfiguration, user.getUUID(), USERS_FOLDER_NAME);
     }
 
     @Override
     public List<User> findAll() {
-        File folder = getFolder(USERS_FOLDER_NAME);
         List<User> users = new ArrayList<>();
-        Arrays.stream(folder.listFiles()).forEach(file -> users.add(mapUserFromFile(file)));
+        getAllYamlConfigurationsInFolder(USERS_FOLDER_NAME).forEach(yaml -> users.add(buildUser(yaml)));
         return users;
-    }
-
-    private User mapUserFromFile(File file) {
-        YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
-        return buildUser(yamlConfiguration);
     }
 
     private User buildUser(YamlConfiguration yamlConfiguration) {
