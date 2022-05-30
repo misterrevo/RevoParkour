@@ -4,3 +4,8 @@ description: Plugin na Areny Parkour
 author: Revo
 
 main: com.revo.application.Plugin
+
+commands:
+  test:
+    description: Test
+    usage: Zla skladnia! Po prostu wpisz /<komenda> aby przetestowac.

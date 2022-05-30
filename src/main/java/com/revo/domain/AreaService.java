@@ -186,4 +186,8 @@ public class AreaService {
         }
         playerSupport.sendNotInAreaMessage(UUID);
     }
+
+    public void test(){
+        System.out.println("In test in service");
+    }
 }

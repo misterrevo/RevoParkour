@@ -1,10 +1,10 @@
 package com.revo.application.utils;
 
 import com.revo.domain.Point;
+import com.revo.domain.User;
 import com.revo.domain.port.PlayerSupportPort;
-import org.bukkit.Bukkit;
+import com.revo.domain.port.UserRepositoryPort;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import static com.revo.application.utils.BukkitUtils.mapLocation;
@@ -15,6 +15,12 @@ public class PlayerSupport implements PlayerSupportPort {
     private static final String INVALID_AREA_MESSAGE = "Area with name %s does not exists!";
     private static final String JOIN_MESSAGE = "You are joining to area %s!";
     private static final String LEAVE_MESSAGE = "You are leaving area %s!";
+
+    private final UserRepositoryPort userRepositoryPort;
+
+    public PlayerSupport(UserRepositoryPort userRepositoryPort) {
+        this.userRepositoryPort = userRepositoryPort;
+    }
 
     @Override
     public void sendInvalidAreaMessage(String uuid, String areaName) {
@@ -38,7 +44,11 @@ public class PlayerSupport implements PlayerSupportPort {
 
     @Override
     public void teleportPlayerToLastLocation(String uuid) {
+        mapPlayer(uuid).teleport(mapLocation(getUser(uuid).getLastLocation()));
+    }
 
+    private User getUser(String uuid) {
+        return userRepositoryPort.getUserByUUIDOrCreate(uuid);
     }
 
     @Override
