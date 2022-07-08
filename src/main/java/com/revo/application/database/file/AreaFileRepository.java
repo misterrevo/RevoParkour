@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 public class AreaFileRepository extends FileRepository implements AreaRepository {
     private static final String AREA_FOLDER_NAME = "AREA_DATABASE";
-    private static final String NAME_PATH = "NAME";
     private static final String AUTHOR_PATH = "AUTHOR";
     private static final String CHECKPOINTS_PATH = "CHECKPOINTS";
     private static final String START_PATH = "START";
