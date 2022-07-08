@@ -1,5 +1,6 @@
 package com.revo.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,7 +72,7 @@ public class Area {
     public static final class Builder {
         private String name;
         private String author;
-        private List<Point> checkpoints;
+        private List<Point> checkpoints = new ArrayList<>();
         private Point start;
         private Point end;
         private int floor;

@@ -11,7 +11,6 @@ import com.revo.domain.port.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class AreaService {
     private final AreaRepository areaRepository;
@@ -24,7 +23,7 @@ public class AreaService {
         this.userRepository = userRepository;
     }
 
-    public List<Area> getAllAreas(){
+    public List<Area> getAllAreas() {
         try {
             return areaRepository.findAll();
         } catch (DatabaseException e) {
@@ -32,21 +31,21 @@ public class AreaService {
         }
     }
 
-    public void createArea(String UUID, String name){
+    public void createArea(String UUID, String name) {
         User user = getUser(UUID);
-        if(existsByName(name)){
+        if (existsByName(name)) {
             throw new AreaNameInUseException();
         }
         Area area = buildArea(name, user);
         save(area);
     }
 
-    private boolean existsByName(String name){
+    private boolean existsByName(String name) {
         return areaRepository.existsByName(name);
     }
 
     public void deleteArea(String UUID, String name) {
-        if(!existsByName(name)){
+        if (!existsByName(name)) {
             throw new AreaNotFoundException();
         }
         removeUsersFromArea(name);
@@ -56,7 +55,7 @@ public class AreaService {
     private void removeUsersFromArea(String name) {
         List<User> users = getAllUsers();
         users.forEach(target -> {
-            if(Objects.equals(target.getArea(), name)){
+            if (Objects.equals(target.getArea(), name)) {
                 target.setArea(null);
                 return;
             }
@@ -68,14 +67,13 @@ public class AreaService {
         return userRepository.findAll();
     }
 
-    private void delete(String name){
+    private void delete(String name) {
         areaRepository.deleteByName(name);
     }
 
-    public void setStart(String UUID, String name, Point point){
-        Area optionalArea = getArea(name)
-                .orElseThrow(() -> new AreaNotFoundException());
-        updateStartInArea(point, optionalArea);
+    public void setStart(String UUID, String name, Point point) {
+        Area area = getArea(name);
+        updateStartInArea(point, area);
     }
 
     private void updateStartInArea(Point point, Area area) {
@@ -83,48 +81,40 @@ public class AreaService {
         save(area);
     }
 
-    public void setEnd(String UUID, String name, Point point){
-        Optional<Area> optionalArea = getArea(name);
-        if(optionalArea.isPresent()){
-            Area area = optionalArea.get();
-            area.setEnd(point);
-            try{
-                save(area);
-            } catch (DatabaseException exception) {
-                
-            }
-            return;
-        }
+    public void setEnd(String UUID, String name, Point point) {
+        updateEndInArea(point, getArea(name));
+        return;
     }
 
-    public void setCheckPoint(String UUID, String name, Point point){
-        Optional<Area> optionalArea = getArea(name);
-        if(optionalArea.isPresent()){
-            Area area = optionalArea.get();
-            List<Point> points = area.getCheckPoints();
-            points.add(point);
-            save(area);
-            return;
-        }
+    private void updateEndInArea(Point point, Area area) {
+        area.setEnd(point);
+        save(area);
     }
 
-    public void removeCheckPoint(String UUID, String name, Point point){
-        Optional<Area> optionalArea = getArea(name);
-        if(optionalArea.isPresent()){
-            Area area = optionalArea.get();
-            List<Point> points = area.getCheckPoints();
-            points.remove(point);
-            save(area);
-            return;
-        }
+    public void setCheckPoint(String UUID, String name, Point point) {
+        Area area = getArea(name);
+        addCheckPointInArea(point, area);
+        save(area);
+    }
+
+    private void addCheckPointInArea(Point point, Area area) {
+        List<Point> points = area.getCheckPoints();
+        points.add(point);
+    }
+
+    public void removeCheckPoint(String UUID, String name, Point point) {
+        Area area = getArea(name);
+        removeCheckPointInArea(point, area);
+        save(area);
+    }
+
+    private void removeCheckPointInArea(Point point, Area area) {
+        List<Point> points = area.getCheckPoints();
+        points.remove(point);
     }
 
     private void save(Area area) {
-        try {
-            areaRepository.save(area);
-        } catch (DatabaseException e) {
-            e.printStackTrace();
-        }
+        areaRepository.save(area);
     }
 
     private Area buildArea(String name, User user) {
@@ -134,53 +124,51 @@ public class AreaService {
                 .build();
     }
 
-    public void joinToArea(String UUID, String areaName){
+    public void joinToArea(String UUID, String areaName) {
         User user = getUser(UUID);
-        Optional<Area> optionalArea = getArea(areaName);
-        if(optionalArea.isEmpty()){
-            return;
-        }
-        Area area = optionalArea.get();
+        Area area = getArea(areaName);
         playerSupport.teleportPlayerToArea(UUID, area.getStart());
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
         user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint());
     }
 
-    private Optional<Area> getArea(String areaName) {
-        return areaRepository.findByName(areaName);
+    private Area getArea(String areaName) {
+        return areaRepository.findByName(areaName)
+                .orElseThrow(() -> new AreaNotFoundException());
     }
 
     private User getUser(String UUID) {
         return userRepository.getUserByUUIDOrCreate(UUID);
     }
 
-    public void leaveArea(String UUID){
+    public void leaveArea(String UUID) {
         User user = getUser(UUID);
-        if(Objects.nonNull(user.getArea())){
+        if (Objects.nonNull(user.getArea())) {
             user.setArea(null);
             playerSupport.teleportPlayerToLastLocation(UUID);
             return;
         }
     }
 
-    public void reachCheckPoint(String UUID, Point point){
+    public void reachCheckPoint(String UUID, Point point) {
         User user = getUser(UUID);
-        Area area = getArea(user.getArea()).get(); //CHECK AREA EXISTS
+        Area area = getArea(user.getArea());
         area.getCheckPoints().forEach(target -> {
-            if(Objects.equals(target, point)){
+            if (Objects.equals(target, point)) {
                 user.setLastCheckPoint(point);
             }
         });
     }
 
-    public void win(String UUID){
-        User user = getUser(UUID);
-        Area area = getArea(user.getArea()).get(); //CHECK AREA EXISTS
-        if(Objects.nonNull(area)){
-            user.setArea(null);
-            playerSupport.teleportPlayerToLastLocation(UUID);
-            return;
-        }
+    public void win(String UUID) {
+        getAllUsers().forEach(user -> {
+            Area area = getArea(user.getArea());
+            if (Objects.nonNull(area)) {
+                user.setArea(null);
+                playerSupport.teleportPlayerToLastLocation(UUID);
+                return;
+            }
+        });
     }
 }
