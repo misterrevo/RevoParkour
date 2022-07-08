@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.revo.application.utils.BukkitUtils.mapPlayer;
+import static com.revo.application.utils.PluginUtils.mapPlayer;
 
 public class UserFileRepository extends FileRepository implements UserRepository {
     private static final String USERS_FOLDER_NAME = "USERS_DATABASE";

@@ -3,7 +3,7 @@ package com.revo.domain;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
-import com.revo.domain.exception.UserHasNotArea;
+import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaRepository;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
@@ -60,7 +60,7 @@ public class AreaService {
                 return;
             }
         });
-        throw new UserHasNotArea();
+        throw new UserHasNotAreaException();
     }
 
     private List<User> getAllUsers() {
@@ -105,12 +105,12 @@ public class AreaService {
     public void removeCheckPoint(String UUID, String name, Point point) {
         Area area = getArea(name);
         removeCheckPointInArea(point, area);
-        save(area);
     }
 
     private void removeCheckPointInArea(Point point, Area area) {
         List<Point> points = area.getCheckPoints();
         points.remove(point);
+        save(area);
     }
 
     private void save(Area area) {

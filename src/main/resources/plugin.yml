@@ -6,6 +6,7 @@ author: Revo
 main: com.revo.application.Plugin
 
 commands:
-  test:
-    description: Test
-    usage: Zla skladnia! Po prostu wpisz /<komenda> aby przetestowac.
+  parkour:
+    description: Parkour commands
+    permission: revo.parkour
+    usage: Syntax error! Simply type /&lt;parkour&gt; to ignite yourself.

@@ -5,8 +5,8 @@ import com.revo.domain.User;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
 
-import static com.revo.application.utils.BukkitUtils.mapLocation;
-import static com.revo.application.utils.BukkitUtils.mapPlayer;
+import static com.revo.application.utils.PluginUtils.mapLocation;
+import static com.revo.application.utils.PluginUtils.mapPlayer;
 
 public class PlayerSupportImp implements PlayerSupport {
     private final UserRepository userRepositoryPort;

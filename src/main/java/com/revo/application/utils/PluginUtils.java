@@ -4,18 +4,22 @@ import com.revo.domain.Point;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.yaml.snakeyaml.error.YAMLException;
 
-public interface BukkitUtils {
-    static Player mapPlayer(String UUID){
+public interface PluginUtils {
+    static final String APPLICATION_YAML_NAME = "application.yml";
+
+    static Player mapPlayer(String UUID) {
         return Bukkit.getPlayer(UUID);
     }
 
-    static String mapUUID(Player player){
+    static String mapUUID(Player player) {
         return player.getUniqueId().toString();
     }
 
-    static Location mapLocation(Point point){
+    static Location mapLocation(Point point) {
         return new Location(mapWorld(point.getWorld()), point.getX(), point.getY(), point.getZ());
     }
 
@@ -23,7 +27,7 @@ public interface BukkitUtils {
         return Bukkit.getWorld(world);
     }
 
-    static Point mapPoint(Location location){
+    static Point mapPoint(Location location) {
         World world = location.getWorld();
         return Point.Builder.aPoint()
                 .world(world.getName())
@@ -31,5 +35,17 @@ public interface BukkitUtils {
                 .y((int) location.getY())
                 .z((int) location.getZ())
                 .build();
+    }
+
+    static String translateSpecialCode(String msg) {
+        String coloredMsg = "";
+        for (int i = 0; i < msg.length(); i++) {
+            if (msg.charAt(i) == '&') {
+                coloredMsg += '§';
+            } else {
+                coloredMsg += msg.charAt(i);
+            }
+        }
+        return coloredMsg;
     }
 }
