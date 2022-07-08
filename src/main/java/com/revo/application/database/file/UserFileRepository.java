@@ -2,7 +2,7 @@ package com.revo.application.database.file;
 
 import com.revo.domain.User;
 import com.revo.domain.exception.DatabaseException;
-import com.revo.domain.port.UserRepositoryPort;
+import com.revo.domain.port.UserRepository;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static com.revo.application.utils.BukkitUtils.mapPlayer;
 
-public class UserFileRepository extends FileRepository implements UserRepositoryPort {
+public class UserFileRepository extends FileRepository implements UserRepository {
 
     private static final String USERS_FOLDER_NAME = "USERS_DATABASE";
     private static final String UUID_PATH = "UUID";

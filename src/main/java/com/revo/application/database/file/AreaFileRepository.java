@@ -3,17 +3,15 @@ package com.revo.application.database.file;
 import com.revo.domain.Area;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
-import com.revo.domain.port.AreaRepositoryPort;
+import com.revo.domain.port.AreaRepository;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AreaFileRepository extends FileRepository implements AreaRepositoryPort {
+public class AreaFileRepository extends FileRepository implements AreaRepository {
 
     private static final String AREA_FOLDER_NAME = "AREA_DATABASE";
     private static final String NAME_PATH = "NAME";
@@ -37,8 +35,9 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
     }
 
     private Area buildArea(YamlConfiguration yamlConfiguration) {
+        String name = removeSuffixFromFileName(yamlConfiguration.getName());
         return Area.Builder.anArea()
-                .name(removeSuffixFromFileName(yamlConfiguration.getName()))
+                .name(name)
                 .author(yamlConfiguration.getString(AUTHOR_PATH))
                 .checkpoints(yamlConfiguration.getStringList(CHECKPOINTS_PATH).stream().map(super::mapPointFromString).collect(Collectors.toList()))
                 .start(mapPointFromString(yamlConfiguration.getString(START_PATH)))

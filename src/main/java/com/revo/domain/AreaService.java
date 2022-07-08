@@ -4,23 +4,22 @@ import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
 import com.revo.domain.exception.UserNotHasArea;
-import com.revo.domain.port.AreaRepositoryPort;
-import com.revo.domain.port.PlayerSupportPort;
-import com.revo.domain.port.UserRepositoryPort;
+import com.revo.domain.port.AreaRepository;
+import com.revo.domain.port.PlayerSupport;
+import com.revo.domain.port.UserRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 public class AreaService {
 
-    private final AreaRepositoryPort areaRepository;
-    private final PlayerSupportPort playerSupport;
-    private final UserRepositoryPort userRepository;
+    private final AreaRepository areaRepository;
+    private final PlayerSupport playerSupport;
+    private final UserRepository userRepository;
 
-    public AreaService(AreaRepositoryPort areaRepository, PlayerSupportPort playerSupport, UserRepositoryPort userRepository) {
+    public AreaService(AreaRepository areaRepository, PlayerSupport playerSupport, UserRepository userRepository) {
         this.areaRepository = areaRepository;
         this.playerSupport = playerSupport;
         this.userRepository = userRepository;
