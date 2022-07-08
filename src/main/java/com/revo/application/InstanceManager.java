@@ -49,7 +49,7 @@ public abstract class InstanceManager {
 
     public static ParkourExecutor parkourExecutor() {
         if(Objects.isNull(parkourExecutor)){
-            parkourExecutor = new ParkourExecutor();
+            parkourExecutor = new ParkourExecutor(areaService());
         }
         return parkourExecutor;
     }
