@@ -11,7 +11,6 @@ import java.util.List;
 
 @Aspect
 class AreaFileRepositoryRollback {
-
     private List<Area> areas;
 
     @AfterThrowing("execution(* com.revo.application.database.file.AreaFileRepository.save(..))")
@@ -45,5 +44,4 @@ class AreaFileRepositoryRollback {
             }
         });
     }
-
 }

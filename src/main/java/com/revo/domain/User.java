@@ -1,7 +1,6 @@
 package com.revo.domain;
 
 public class User {
-
     private String UUID;
     private String name;
     private String area;

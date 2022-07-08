@@ -7,7 +7,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public interface BukkitUtils {
-    
     static Player mapPlayer(String UUID){
         return Bukkit.getPlayer(UUID);
     }
@@ -33,5 +32,4 @@ public interface BukkitUtils {
                 .z((int) location.getZ())
                 .build();
     }
-    
 }

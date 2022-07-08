@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class Area {
-
     private String name;
     private String author;
     private List<Point> checkPoints;

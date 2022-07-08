@@ -11,7 +11,6 @@ import com.revo.domain.port.UserRepository;
 import java.util.Objects;
 
 public abstract class InstanceManager {
-
     private static AreaRepository areaRepository;
     private static UserRepository userRepository;
     private static PlayerSupport playerSupport;

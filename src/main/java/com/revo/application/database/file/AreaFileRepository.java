@@ -6,13 +6,14 @@ import com.revo.domain.exception.DatabaseException;
 import com.revo.domain.port.AreaRepository;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AreaFileRepository extends FileRepository implements AreaRepository {
-
     private static final String AREA_FOLDER_NAME = "AREA_DATABASE";
     private static final String NAME_PATH = "NAME";
     private static final String AUTHOR_PATH = "AUTHOR";
@@ -74,16 +75,20 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
     @Override
     public void save(Area area){
         try{
-            YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(area.getName(), AREA_FOLDER_NAME);
-            yamlConfiguration.set(AUTHOR_PATH, area.getAuthor());
-            yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString));
-            yamlConfiguration.set(START_PATH, mapPointToString(area.getStart()));
-            yamlConfiguration.set(END_PATH, mapPointToString(area.getEnd()));
-            yamlConfiguration.set(FLOOR_PATH, area.getFloor());
-            saveYamlConfiguration(yamlConfiguration, area.getName(), AREA_FOLDER_NAME);
+            saveAreaToYaml(area);
         } catch (Exception exception){
             throw new DatabaseException();
         }
+    }
+
+    private void saveAreaToYaml(Area area) throws IOException, URISyntaxException {
+        YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(area.getName(), AREA_FOLDER_NAME);
+        yamlConfiguration.set(AUTHOR_PATH, area.getAuthor());
+        yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString));
+        yamlConfiguration.set(START_PATH, mapPointToString(area.getStart()));
+        yamlConfiguration.set(END_PATH, mapPointToString(area.getEnd()));
+        yamlConfiguration.set(FLOOR_PATH, area.getFloor());
+        saveYamlConfiguration(yamlConfiguration, area.getName(), AREA_FOLDER_NAME);
     }
 
     @Override

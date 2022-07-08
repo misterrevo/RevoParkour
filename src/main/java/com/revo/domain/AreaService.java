@@ -3,7 +3,7 @@ package com.revo.domain;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
-import com.revo.domain.exception.UserNotHasArea;
+import com.revo.domain.exception.UserHasNotArea;
 import com.revo.domain.port.AreaRepository;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class AreaService {
-
     private final AreaRepository areaRepository;
     private final PlayerSupport playerSupport;
     private final UserRepository userRepository;
@@ -62,7 +61,7 @@ public class AreaService {
                 return;
             }
         });
-        throw new UserNotHasArea();
+        throw new UserHasNotArea();
     }
 
     private List<User> getAllUsers() {

@@ -1,9 +1,9 @@
 package com.revo.domain.exception;
 
-public class UserNotHasArea extends RuntimeException {
+public class UserHasNotArea extends RuntimeException {
     private static final String MESSAGE = "Error while removing user from area, user don't have area!";
 
-    public UserNotHasArea() {
+    public UserHasNotArea() {
         super(MESSAGE);
     }
 }

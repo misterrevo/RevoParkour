@@ -4,7 +4,6 @@ package com.revo.domain;
 import java.util.Objects;
 
 public class Point {
-
     private Long id;
     private String world;
     private int x;

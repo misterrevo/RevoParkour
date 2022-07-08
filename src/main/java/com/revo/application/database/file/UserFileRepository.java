@@ -14,7 +14,6 @@ import java.util.Objects;
 import static com.revo.application.utils.BukkitUtils.mapPlayer;
 
 public class UserFileRepository extends FileRepository implements UserRepository {
-
     private static final String USERS_FOLDER_NAME = "USERS_DATABASE";
     private static final String UUID_PATH = "UUID";
     private static final String NAME_PATH = "NAME";
@@ -29,10 +28,7 @@ public class UserFileRepository extends FileRepository implements UserRepository
             if(Objects.nonNull(yamlConfiguration.get(UUID_PATH))){
                 return buildUser(yamlConfiguration);
             }
-            User user = User.Builder.anUser()
-                    .UUID(uuid)
-                    .name(mapPlayer(uuid).getName())
-                    .build();
+            User user = buildUser(uuid);
             save(user, yamlConfiguration);
         } catch (Exception e) {
             throw new DatabaseException();
@@ -40,13 +36,24 @@ public class UserFileRepository extends FileRepository implements UserRepository
         return null;
     }
 
+    private User buildUser(String uuid) {
+        return User.Builder.anUser()
+                .UUID(uuid)
+                .name(mapPlayer(uuid).getName())
+                .build();
+    }
+
     private void save(User user, YamlConfiguration yamlConfiguration) throws IOException, URISyntaxException {
+        setUserInYamlConfiguration(user, yamlConfiguration);
+        saveYamlConfiguration(yamlConfiguration, user.getUUID(), USERS_FOLDER_NAME);
+    }
+
+    private void setUserInYamlConfiguration(User user, YamlConfiguration yamlConfiguration) {
         yamlConfiguration.set(UUID_PATH, user.getUUID());
         yamlConfiguration.set(NAME_PATH, user.getName());
         yamlConfiguration.set(AREA_PATH, user.getArea());
         yamlConfiguration.set(LAST_CHECKPOINT_PATH, mapPointToString(user.getLastCheckPoint()));
         yamlConfiguration.set(LAST_LOCATION_PATH, mapPointToString(user.getLastLocation()));
-        saveYamlConfiguration(yamlConfiguration, user.getUUID(), USERS_FOLDER_NAME);
     }
 
     @Override

@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class FileRepository {
-
     private static final String SLASH = "/";
     private static final String POINT_STRING_SEPARATOR = ";";
     private static final Object YAML_TYPE = ".yml";
@@ -79,6 +78,10 @@ class FileRepository {
 
     Point mapPointFromString(String string) {
         String[] splittedString = string.split(POINT_STRING_SEPARATOR);
+        return buildPoint(splittedString);
+    }
+
+    private Point buildPoint(String[] splittedString) {
         return Point.Builder.aPoint()
                 .id(Long.valueOf(splittedString[0]))
                 .world(splittedString[1])

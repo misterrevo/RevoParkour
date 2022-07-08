@@ -9,7 +9,6 @@ import static com.revo.application.utils.BukkitUtils.mapLocation;
 import static com.revo.application.utils.BukkitUtils.mapPlayer;
 
 public class PlayerSupportImp implements PlayerSupport {
-
     private final UserRepository userRepositoryPort;
 
     public PlayerSupportImp(UserRepository userRepositoryPort) {
