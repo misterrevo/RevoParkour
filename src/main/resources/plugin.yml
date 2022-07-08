@@ -9,4 +9,3 @@ commands:
   parkour:
     description: Parkour commands
     permission: revo.parkour
-    usage: Syntax error! Simply type /&lt;parkour&gt; to ignite yourself.
