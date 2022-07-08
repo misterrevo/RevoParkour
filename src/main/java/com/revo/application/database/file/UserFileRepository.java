@@ -1,9 +1,12 @@
 package com.revo.application.database.file;
 
 import com.revo.domain.User;
+import com.revo.domain.exception.DatabaseException;
 import com.revo.domain.port.UserRepositoryPort;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,12 +35,12 @@ public class UserFileRepository extends FileRepository implements UserRepository
                     .build();
             save(user, yamlConfiguration);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DatabaseException();
         }
         return null;
     }
 
-    private void save(User user, YamlConfiguration yamlConfiguration) {
+    private void save(User user, YamlConfiguration yamlConfiguration) throws IOException, URISyntaxException {
         yamlConfiguration.set(UUID_PATH, user.getUUID());
         yamlConfiguration.set(NAME_PATH, user.getName());
         yamlConfiguration.set(AREA_PATH, user.getArea());
@@ -49,7 +52,11 @@ public class UserFileRepository extends FileRepository implements UserRepository
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        getAllYamlConfigurationsInFolder(USERS_FOLDER_NAME).forEach(yaml -> users.add(buildUser(yaml)));
+        try {
+            getAllYamlConfigurationsInFolder(USERS_FOLDER_NAME).forEach(yaml -> users.add(buildUser(yaml)));
+        } catch (Exception e) {
+            throw new DatabaseException();
+        }
         return users;
     }
 

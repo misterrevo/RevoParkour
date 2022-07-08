@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,68 +30,49 @@ class FileRepository {
         return stringBuilder.toString();
     }
 
-    YamlConfiguration getYamlConfigurationInFolder(String id, String folderName) {
-        try {
-            File folder = getFolder(folderName);
-            File file = getFileInFolder(folder, id);
-            return YamlConfiguration.loadConfiguration(file);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    YamlConfiguration getYamlConfigurationInFolder(String id, String folderName) throws IOException, URISyntaxException {
+        File folder = getFolder(folderName);
+        File file = getFileInFolder(folder, id);
+        return YamlConfiguration.loadConfiguration(file);
     }
 
-    private File getFileInFolder(File folder, String id){
-        try {
-            File file = buildFile(folder, id);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            return file;
-        } catch (Exception exception){
-            exception.printStackTrace();
+    private File getFileInFolder(File folder, String id) throws IOException {
+        File file = buildFile(folder, id);
+        if (!file.exists()) {
+            file.createNewFile();
         }
-        return null;
+        return file;
     }
 
     private File buildFile(File folder, String id) {
         return new File(folder.getPath() + SLASH + id + YAML_TYPE);
     }
 
-    void deleteFile(String id, String folderName){
+    void deleteFile(String id, String folderName) throws IOException, URISyntaxException {
         File folder = getFolder(folderName);
         File file = buildFile(folder, id);
         file.delete();
     }
 
-    boolean fileExists(String id, String folderName){
+    boolean fileExists(String id, String folderName) throws IOException, URISyntaxException {
         File folder = getFolder(folderName);
         File file = buildFile(folder, id);
         return file.exists();
     }
 
-    void saveYamlConfiguration(YamlConfiguration yamlConfiguration, String id, String folderName){
-        try {
-            yamlConfiguration.save(getFileInFolder(getFolder(folderName), id));
-        } catch (IOException exception){
-            exception.printStackTrace();
-        }
+    void saveYamlConfiguration(YamlConfiguration yamlConfiguration, String id, String folderName) throws IOException, URISyntaxException {
+        yamlConfiguration.save(getFileInFolder(getFolder(folderName), id));
     }
 
-    File getFolder(String name){
-        try {
-            File folder = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath() + SLASH + name);
-            if(!folder.exists()){
-                folder.createNewFile();
-            }
-            return folder;
-        } catch (Exception exception){
-            exception.printStackTrace();
+    File getFolder(String name) throws IOException, URISyntaxException {
+        File folder = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath() + SLASH + name);
+        if (!folder.exists()) {
+            folder.createNewFile();
         }
-        return null;
+        return folder;
     }
 
-    List<YamlConfiguration> getAllYamlConfigurationsInFolder(String name){
+    List<YamlConfiguration> getAllYamlConfigurationsInFolder(String name) throws IOException, URISyntaxException {
         File folder = getFolder(name);
         return Stream.of(folder.listFiles()).map(file -> YamlConfiguration.loadConfiguration(file)).collect(Collectors.toList());
     }

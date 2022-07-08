@@ -1,12 +1,11 @@
-package com.revo.application.utils;
+package com.revo.application.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
 
 @Aspect
-public class MessageAspect {
+public class MessageSender {
 
     @Before("execution(* com.revo.domain.AreaService.test(..))")
     public void test(JoinPoint joinPoint){

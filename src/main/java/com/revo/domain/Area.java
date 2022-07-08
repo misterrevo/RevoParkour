@@ -1,6 +1,7 @@
 package com.revo.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Area {
 
@@ -116,5 +117,18 @@ public class Area {
         public Area build() {
             return new Area(name, author, checkpoints, start, end, floor);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Area area = (Area) o;
+        return floor == area.floor && Objects.equals(name, area.name) && Objects.equals(author, area.author) && Objects.equals(checkPoints, area.checkPoints) && Objects.equals(start, area.start) && Objects.equals(end, area.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, author, checkPoints, start, end, floor);
     }
 }

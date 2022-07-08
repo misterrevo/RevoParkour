@@ -12,24 +12,10 @@ import static com.revo.application.utils.BukkitUtils.mapPlayer;
 
 public class PlayerSupport implements PlayerSupportPort {
 
-    private static final String INVALID_AREA_MESSAGE = "Area with name %s does not exists!";
-    private static final String JOIN_MESSAGE = "You are joining to area %s!";
-    private static final String LEAVE_MESSAGE = "You are leaving area %s!";
-
     private final UserRepositoryPort userRepositoryPort;
 
     public PlayerSupport(UserRepositoryPort userRepositoryPort) {
         this.userRepositoryPort = userRepositoryPort;
-    }
-
-    @Override
-    public void sendInvalidAreaMessage(String uuid, String areaName) {
-        mapPlayer(uuid).sendMessage(INVALID_AREA_MESSAGE.formatted(areaName));
-    }
-
-    @Override
-    public void sendJoinMessage(String uuid, String areaName) {
-        mapPlayer(uuid).sendMessage(JOIN_MESSAGE.formatted(areaName));
     }
 
     @Override
@@ -38,52 +24,8 @@ public class PlayerSupport implements PlayerSupportPort {
     }
 
     @Override
-    public void sendLeaveMessage(String uuid, String name) {
-        mapPlayer(uuid).sendMessage(LEAVE_MESSAGE.formatted(name));
-    }
-
-    @Override
     public void teleportPlayerToLastLocation(String uuid) {
         mapPlayer(uuid).teleport(mapLocation(getUser(uuid).getLastLocation()));
-    }
-
-    private User getUser(String uuid) {
-        return userRepositoryPort.getUserByUUIDOrCreate(uuid);
-    }
-
-    @Override
-    public void sendNotInAreaMessage(String uuid) {
-
-    }
-
-    @Override
-    public void sendAreaNameInUseMessage(String uuid, String name) {
-
-    }
-
-    @Override
-    public void sendAreaCreateMessage(String uuid, String name) {
-
-    }
-
-    @Override
-    public void sendSetStartMessage(String uuid, String name, Point point) {
-
-    }
-
-    @Override
-    public void sendSetEndMessage(String uuid, String name, Point point) {
-
-    }
-
-    @Override
-    public void sendSetCheckPointMessage(String uuid, String name, Point point) {
-
-    }
-
-    @Override
-    public void sendRemoveCheckPointMessage(String uuid, String name, Point point) {
-
     }
 
     @Override
@@ -91,23 +33,7 @@ public class PlayerSupport implements PlayerSupportPort {
         return null;
     }
 
-    @Override
-    public void sendReachCheckPointMessage(String uuid) {
-
-    }
-
-    @Override
-    public void sendWinMessage(String uuid, String name) {
-
-    }
-
-    @Override
-    public void sendDeleteAreaMessage(String uuid, String name) {
-
-    }
-
-    @Override
-    public void sendAreaDeleteByAdminMessage(String uuid, String name) {
-
+    private User getUser(String uuid) {
+        return userRepositoryPort.getUserByUUIDOrCreate(uuid);
     }
 }

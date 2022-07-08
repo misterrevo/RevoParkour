@@ -1,10 +1,15 @@
 package com.revo.domain;
 
+import com.revo.domain.exception.AreaNameInUseException;
+import com.revo.domain.exception.AreaNotFoundException;
+import com.revo.domain.exception.DatabaseException;
+import com.revo.domain.exception.UserNotHasArea;
 import com.revo.domain.port.AreaRepositoryPort;
 import com.revo.domain.port.PlayerSupportPort;
 import com.revo.domain.port.UserRepositoryPort;
-import org.checkerframework.checker.units.qual.A;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,32 +27,32 @@ public class AreaService {
     }
 
     public List<Area> getAllAreas(){
-        return areaRepository.findAll();
+        try {
+            return areaRepository.findAll();
+        } catch (DatabaseException e) {
+            return new ArrayList<>();
+        }
     }
 
     public void createArea(String UUID, String name){
         User user = getUser(UUID);
         if(existsByName(name)){
-            playerSupport.sendAreaNameInUseMessage(UUID, name);
-            return;
+            throw new AreaNameInUseException();
         }
         Area area = buildArea(name, user);
         save(area);
-        playerSupport.sendAreaCreateMessage(UUID, name);
     }
 
-    private boolean existsByName(String name) {
+    private boolean existsByName(String name){
         return areaRepository.existsByName(name);
     }
 
-    public void deleteArea(String UUID, String name){
+    public void deleteArea(String UUID, String name) {
         if(!existsByName(name)){
-            playerSupport.sendInvalidAreaMessage(UUID, name);
-            return;
+            throw new AreaNotFoundException();
         }
         removeUsersFromArea(name);
         delete(name);
-        playerSupport.sendDeleteAreaMessage(UUID, name);
     }
 
     private void removeUsersFromArea(String name) {
@@ -55,30 +60,29 @@ public class AreaService {
         users.forEach(target -> {
             if(Objects.equals(target.getArea(), name)){
                 target.setArea(null);
-                playerSupport.sendAreaDeleteByAdminMessage(target.getUUID(), name);
-                playerSupport.teleportPlayerToLastLocation(target.getUUID());
+                return;
             }
         });
+        throw new UserNotHasArea();
     }
 
     private List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    private void delete(String name) {
+    private void delete(String name){
         areaRepository.deleteByName(name);
     }
 
     public void setStart(String UUID, String name, Point point){
-        Optional<Area> optionalArea = getArea(name);
-        if(optionalArea.isPresent()){
-            Area area = optionalArea.get();
-            area.setStart(point);
-            save(area);
-            playerSupport.sendSetStartMessage(UUID, name, point);
-            return;
-        }
-        playerSupport.sendInvalidAreaMessage(UUID, name);
+        Area optionalArea = getArea(name)
+                .orElseThrow(() -> new AreaNotFoundException());
+        updateStartInArea(point, optionalArea);
+    }
+
+    private void updateStartInArea(Point point, Area area) {
+        area.setStart(point);
+        save(area);
     }
 
     public void setEnd(String UUID, String name, Point point){
@@ -86,11 +90,13 @@ public class AreaService {
         if(optionalArea.isPresent()){
             Area area = optionalArea.get();
             area.setEnd(point);
-            save(area);
-            playerSupport.sendSetEndMessage(UUID, name, point);
+            try{
+                save(area);
+            } catch (DatabaseException exception) {
+                
+            }
             return;
         }
-        playerSupport.sendInvalidAreaMessage(UUID, name);
     }
 
     public void setCheckPoint(String UUID, String name, Point point){
@@ -100,10 +106,8 @@ public class AreaService {
             List<Point> points = area.getCheckPoints();
             points.add(point);
             save(area);
-            playerSupport.sendSetCheckPointMessage(UUID, name, point);
             return;
         }
-        playerSupport.sendInvalidAreaMessage(UUID, name);
     }
 
     public void removeCheckPoint(String UUID, String name, Point point){
@@ -113,14 +117,16 @@ public class AreaService {
             List<Point> points = area.getCheckPoints();
             points.remove(point);
             save(area);
-            playerSupport.sendRemoveCheckPointMessage(UUID, name, point);
             return;
         }
-        playerSupport.sendInvalidAreaMessage(UUID, name);
     }
 
     private void save(Area area) {
-        areaRepository.save(area);
+        try {
+            areaRepository.save(area);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     private Area buildArea(String name, User user) {
@@ -134,11 +140,9 @@ public class AreaService {
         User user = getUser(UUID);
         Optional<Area> optionalArea = getArea(areaName);
         if(optionalArea.isEmpty()){
-            playerSupport.sendInvalidAreaMessage(UUID, areaName);
             return;
         }
         Area area = optionalArea.get();
-        playerSupport.sendJoinMessage(UUID, areaName);
         playerSupport.teleportPlayerToArea(UUID, area.getStart());
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
@@ -157,11 +161,9 @@ public class AreaService {
         User user = getUser(UUID);
         if(Objects.nonNull(user.getArea())){
             user.setArea(null);
-            playerSupport.sendLeaveMessage(UUID, user.getArea());
             playerSupport.teleportPlayerToLastLocation(UUID);
             return;
         }
-        playerSupport.sendNotInAreaMessage(UUID);
     }
 
     public void reachCheckPoint(String UUID, Point point){
@@ -170,7 +172,6 @@ public class AreaService {
         area.getCheckPoints().forEach(target -> {
             if(Objects.equals(target, point)){
                 user.setLastCheckPoint(point);
-                playerSupport.sendReachCheckPointMessage(UUID);
             }
         });
     }
@@ -180,14 +181,8 @@ public class AreaService {
         Area area = getArea(user.getArea()).get(); //CHECK AREA EXISTS
         if(Objects.nonNull(area)){
             user.setArea(null);
-            playerSupport.sendWinMessage(UUID, area.getName());
             playerSupport.teleportPlayerToLastLocation(UUID);
             return;
         }
-        playerSupport.sendNotInAreaMessage(UUID);
-    }
-
-    public void test(){
-        System.out.println("In test in service");
     }
 }
