@@ -13,14 +13,19 @@ class ParkourExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(command.getName().equals(PARKOUR_COMMAND_NAME)){
             if(args.length == 0){
-                printHelp();
+                printHelp(sender);
             }
             return true;
         }
         return false;
     }
 
-    private void printHelp() {
-        System.out.println(PluginUtils.translateSpecialCode("&2]-----["+ Plugin.get().getName() +"]-----["));
+    private void printHelp(CommandSender sender) {
+        sendMessage(sender, "&2]-----["+ Plugin.get().getName() +"]-----[");
+        sendMessage(sender, "/parkour - list of commands");
+    }
+
+    private void sendMessage(CommandSender sender, String message){
+        sender.sendMessage(PluginUtils.translateSpecialCode(message));
     }
 }
