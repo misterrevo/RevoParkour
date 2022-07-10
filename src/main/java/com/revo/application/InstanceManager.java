@@ -1,6 +1,6 @@
 package com.revo.application;
 
-import com.revo.application.command.ParkourExecutor;
+import com.revo.application.command.ParkourCommandExecutor;
 import com.revo.application.database.file.AreaFileRepository;
 import com.revo.application.database.file.UserFileRepository;
 import com.revo.application.utils.PlayerSupportImp;
@@ -16,7 +16,7 @@ public abstract class InstanceManager {
     private static UserRepository userRepository;
     private static PlayerSupport playerSupport;
     private static AreaService areaService;
-    private static ParkourExecutor parkourExecutor;
+    private static ParkourCommandExecutor parkourCommandExecutor;
     private static Plugin instance;
 
     public static AreaRepository areaRepository() {
@@ -47,11 +47,11 @@ public abstract class InstanceManager {
         return areaService;
     }
 
-    public static ParkourExecutor parkourExecutor() {
-        if(Objects.isNull(parkourExecutor)){
-            parkourExecutor = new ParkourExecutor(areaService());
+    public static ParkourCommandExecutor parkourCommandExecutor() {
+        if(Objects.isNull(parkourCommandExecutor)){
+            parkourCommandExecutor = new ParkourCommandExecutor(areaService());
         }
-        return parkourExecutor;
+        return parkourCommandExecutor;
     }
 
     public static Plugin plugin(){
