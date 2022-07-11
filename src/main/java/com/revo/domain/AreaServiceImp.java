@@ -174,19 +174,12 @@ public class AreaServiceImp implements AreaService {
 
     @Override
     public void win(String UUID) {
-        User winUser = getUser(UUID);
-        Area currentArea = getArea(winUser.getArea());
-        getAllUsers().forEach(user -> {
-            Area area = getArea(user.getArea());
-            if (Objects.nonNull(area) && isCurrentArea(area, currentArea)) {
-                user.setArea(null);
-                playerSupport.teleportPlayerToLastLocation(UUID);
-                return;
-            }
-        });
-    }
-
-    private boolean isCurrentArea(Area area, Area currentArea) {
-        return Objects.equals(area.getName(), currentArea.getName());
+        User user = getUser(UUID);
+        Area area = getArea(user.getArea());
+        if (Objects.nonNull(area)) {
+            user.setArea(null);
+            playerSupport.teleportPlayerToLastLocation(UUID);
+            return;
+        }
     }
 }
