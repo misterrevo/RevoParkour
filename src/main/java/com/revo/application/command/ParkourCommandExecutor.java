@@ -17,7 +17,8 @@ import java.util.UUID;
 public class ParkourCommandExecutor implements CommandExecutor {
     private static final String PARKOUR_COMMAND_NAME = "parkour";
     private static final String CREATE_ARGUMENT = "create";
-    private static final Object LIST_ARGUMENT = "list";
+    private static final String LIST_ARGUMENT = "list";
+    private static final String START_ARGUMENT = "start";
 
     private final AreaService areaService;
 
@@ -43,9 +44,28 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     createArea(sender, args);
                     return true;
                 }
+                if(isStartArgument(args[0])){
+                    setStartInArea(sender, args);
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    private void setStartInArea(CommandSender sender, String[] args) {
+        if(isConsole(sender)){
+            sendOnlyForPlayerMessage(sender);
+            return;
+        }
+        Player player = (Player) sender;
+        UUID playerUuid = player.getUniqueId();
+        areaService.setStart(playerUuid.toString(), args[1], PluginUtils.mapPoint(player.getLocation()));
+        sendMessage(player, "&aSuccessfully updated area start point!");
+    }
+
+    private boolean isStartArgument(String argument) {
+        return Objects.equals(argument, START_ARGUMENT);
     }
 
     private void printListOfAreas(CommandSender sender) {
@@ -71,17 +91,21 @@ public class ParkourCommandExecutor implements CommandExecutor {
 
     private void createArea(CommandSender sender, String[] args) {
         if(isConsole(sender)){
-            sendMessage(sender, "&4This command is only for players!");
+            sendOnlyForPlayerMessage(sender);
             return;
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
         try{
             areaService.createArea(playerUuid.toString(), args[1]);
-            sendMessage(player, "&aSuccessfull created area!");
+            sendMessage(player, "&aSuccessfully created area!");
         } catch (AreaNameInUseException exception){
             sendMessage(player, "&4Area name is in use!");
         }
+    }
+
+    private void sendOnlyForPlayerMessage(CommandSender sender) {
+        sendMessage(sender, "&4This command is only for players!");
     }
 
     private boolean isConsole(CommandSender sender) {
@@ -93,6 +117,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, "&a/parkour - list of commands");
         sendMessage(sender, "&a/parkour list - list of areas");
         sendMessage(sender, "&a/parkour create [name] - create new area");
+        sendMessage(sender, "&a/parkour start [name] - sets area start point");
     }
 
     private void sendMessage(CommandSender sender, String message){
