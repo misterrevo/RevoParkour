@@ -32,6 +32,7 @@ public class UserFileRepository extends FileRepository implements UserRepository
             save(user, yamlConfiguration);
             return user;
         } catch (Exception exception) {
+            System.out.println(exception.getMessage() +"|"+exception.getStackTrace());
             throw new DatabaseException();
         }
     }

@@ -4,7 +4,6 @@ import com.revo.application.InstanceManager;
 import com.revo.application.utils.PluginUtils;
 import com.revo.domain.Area;
 import com.revo.domain.AreaService;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,13 +13,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 public class ParkourCommandExecutor implements CommandExecutor {
     private static final String PARKOUR_COMMAND_NAME = "parkour";
     private static final String CREATE_ARGUMENT = "create";
     private static final Object LIST_ARGUMENT = "list";
 
     private final AreaService areaService;
+
+    public ParkourCommandExecutor(AreaService areaService) {
+        this.areaService = areaService;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -11,8 +11,6 @@ import org.yaml.snakeyaml.error.YAMLException;
 import java.util.UUID;
 
 public interface PluginUtils {
-    static final String APPLICATION_YAML_NAME = "application.yml";
-
     static Player mapPlayer(String uuid) {
         return Bukkit.getPlayer(UUID.fromString(uuid));
     }

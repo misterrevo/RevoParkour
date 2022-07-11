@@ -71,7 +71,11 @@ class FileRepository {
     }
 
     File getFolder(String name) throws IOException, URISyntaxException {
-        File folder = new File(System.getProperty(CURRENT_DIRECTORY_PROPERTY) + SLASH + PLUGINS_FOLDER_NAME + SLASH + CURRENT_PLUGIN_FOLDER_NAME + SLASH + name);
+        File pluginFolder = new File(System.getProperty(CURRENT_DIRECTORY_PROPERTY) + SLASH + PLUGINS_FOLDER_NAME + SLASH + CURRENT_PLUGIN_FOLDER_NAME);
+        if(!pluginFolder.exists()){
+            pluginFolder.mkdir();
+        }
+        File folder = new File(pluginFolder.getPath() + SLASH + name);
         if (!folder.exists()) {
             folder.mkdir();
         }
@@ -80,7 +84,11 @@ class FileRepository {
 
     List<YamlConfiguration> getAllYamlConfigurationsInFolder(String name) throws IOException, URISyntaxException {
         File folder = getFolder(name);
-        return Stream.of(folder.listFiles()).map(file -> YamlConfiguration.loadConfiguration(file)).collect(Collectors.toList());
+        System.out.println("Read in path: "+folder.getPath());
+        return Stream.of(folder.listFiles()).map(file -> {
+            System.out.println("Read file: "+file.getName());
+            return YamlConfiguration.loadConfiguration(file);
+        }).collect(Collectors.toList());
     }
 
     Point mapPointFromString(String string) {
