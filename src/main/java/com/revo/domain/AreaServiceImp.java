@@ -48,7 +48,7 @@ public class AreaServiceImp implements AreaService {
     }
 
     @Override
-    public void deleteArea(String UUID, String name) {
+    public void deleteArea(String name) {
         if (!existsByName(name)) {
             throw new AreaNotFoundException();
         }

@@ -22,6 +22,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String LIST_ARGUMENT = "list";
     private static final String START_ARGUMENT = "start";
     private static final String END_ARGUMENT = "end";
+    private static final String DELETE_ARGUMENT = "delete";
 
     private final AreaService areaService;
 
@@ -55,9 +56,26 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     setEndInArea(sender, args[1]);
                     return true;
                 }
+                if(isDeleteArgument(args[0])){
+                    deleteArea(sender, args[1]);
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    private void deleteArea(CommandSender sender, String name) {
+        try {
+            areaService.deleteArea(name);
+            sendMessage(sender, "&aSuccessfully deleted area!");
+        }catch (AreaNotFoundException exception){
+            sendNotFoundAreaMessage(name, sender);
+        }
+    }
+
+    private boolean isDeleteArgument(String argument) {
+        return Objects.equals(argument, DELETE_ARGUMENT);
     }
 
     private void setEndInArea(CommandSender sender, String name) {
@@ -71,8 +89,12 @@ public class ParkourCommandExecutor implements CommandExecutor {
             areaService.setEnd(playerUuid.toString(), name, PluginUtils.mapPointFromLocation(player.getLocation()));
             sendMessage(player, "&aSuccessfully updated area end point!");
         } catch (AreaNotFoundException exception){
-            sendMessage(player, "&4Can not found area with name " + name);
+            sendNotFoundAreaMessage(name, player);
         }
+    }
+
+    private void sendNotFoundAreaMessage(String name, CommandSender sender) {
+        sendMessage(sender, "&4Can not found area with name " + name);
     }
 
     private boolean isEndArgument(String argument) {
@@ -149,6 +171,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, "&a/parkour create [name] - create new area");
         sendMessage(sender, "&a/parkour start [name] - sets area start point");
         sendMessage(sender, "&a/parkour end [name] - sets area end point");
+        sendMessage(sender, "&a/parkour delete [name] - deletes area");
     }
 
     private void sendMessage(CommandSender sender, String message){

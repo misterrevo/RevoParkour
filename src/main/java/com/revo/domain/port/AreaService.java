@@ -10,7 +10,7 @@ public interface AreaService {
 
     void createArea(String UUID, String name);
 
-    void deleteArea(String UUID, String name);
+    void deleteArea(String name);
 
     void setStart(String UUID, String name, Point point);
 
