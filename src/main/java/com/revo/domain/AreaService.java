@@ -26,7 +26,7 @@ public class AreaService {
     public List<Area> getAllAreas() {
         try {
             return areaRepository.findAll();
-        } catch (DatabaseException e) {
+        } catch (DatabaseException exception) {
             return new ArrayList<>();
         }
     }

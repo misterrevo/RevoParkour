@@ -20,34 +20,28 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
     private static final String START_PATH = "START";
     private static final String END_PATH = "END";
     private static final String FLOOR_PATH = "FLOOR";
-    private static final String YAML_SUFFIX = ".yml";
-    private static final CharSequence EMPTY_STRING = "";
+    private static final String NAME_PATH = "NAME";
 
     @Override
     public List<Area> findAll(){
         List<Area> areas = new ArrayList<>();
         try {
             getAllYamlConfigurationsInFolder(AREA_FOLDER_NAME).forEach(yaml -> areas.add(buildArea(yaml)));
-        } catch (Exception e) {
+        } catch (Exception exception) {
             throw new DatabaseException();
         }
         return areas;
     }
 
     private Area buildArea(YamlConfiguration yamlConfiguration) {
-        String name = removeSuffixFromFileName(yamlConfiguration.getName());
         return Area.Builder.anArea()
-                .name(name)
+                .name(yamlConfiguration.getString(NAME_PATH))
                 .author(yamlConfiguration.getString(AUTHOR_PATH))
                 .checkpoints(yamlConfiguration.getStringList(CHECKPOINTS_PATH).stream().map(super::mapPointFromString).collect(Collectors.toList()))
                 .start(mapPointFromString(yamlConfiguration.getString(START_PATH)))
                 .end(mapPointFromString(yamlConfiguration.getString(END_PATH)))
                 .floor(yamlConfiguration.getInt(FLOOR_PATH))
                 .build();
-    }
-
-    private String removeSuffixFromFileName(String name) {
-        return name.replace(YAML_SUFFIX, EMPTY_STRING);
     }
 
     @Override
@@ -82,6 +76,7 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
 
     private void saveAreaToYaml(Area area) throws IOException, URISyntaxException {
         YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(area.getName(), AREA_FOLDER_NAME);
+        yamlConfiguration.set(NAME_PATH, area.getName());
         yamlConfiguration.set(AUTHOR_PATH, area.getAuthor());
         yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString).collect(Collectors.toList()));
         yamlConfiguration.set(START_PATH, mapPointToString(area.getStart()));

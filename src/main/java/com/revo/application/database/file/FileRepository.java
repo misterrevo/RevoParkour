@@ -84,16 +84,15 @@ class FileRepository {
 
     List<YamlConfiguration> getAllYamlConfigurationsInFolder(String name) throws IOException, URISyntaxException {
         File folder = getFolder(name);
-        System.out.println("Read in path: "+folder.getPath());
-        return Stream.of(folder.listFiles()).map(file -> {
-            System.out.println("Read file: "+file.getName());
-            return YamlConfiguration.loadConfiguration(file);
-        }).collect(Collectors.toList());
+        return Stream.of(folder.listFiles()).map(file -> YamlConfiguration.loadConfiguration(file)).collect(Collectors.toList());
     }
 
     Point mapPointFromString(String string) {
-        String[] splittedString = string.split(POINT_STRING_SEPARATOR);
-        return buildPoint(splittedString);
+        if(Objects.isNull(string)){
+            return null;
+        }
+        String[] splitString = string.split(POINT_STRING_SEPARATOR);
+        return buildPoint(splitString);
     }
 
     private Point buildPoint(String[] splittedString) {

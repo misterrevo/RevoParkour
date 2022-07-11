@@ -4,6 +4,7 @@ import com.revo.application.InstanceManager;
 import com.revo.application.utils.PluginUtils;
 import com.revo.domain.Area;
 import com.revo.domain.AreaService;
+import com.revo.domain.exception.AreaNameInUseException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -75,8 +76,12 @@ public class ParkourCommandExecutor implements CommandExecutor {
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
-        areaService.createArea(playerUuid.toString(), args[1]);
-        sendMessage(player, "&aSuccessfull created area!");
+        try{
+            areaService.createArea(playerUuid.toString(), args[1]);
+            sendMessage(player, "&aSuccessfull created area!");
+        } catch (AreaNameInUseException exception){
+            sendMessage(player, "&4Area name is in use!");
+        }
     }
 
     private boolean isConsole(CommandSender sender) {
