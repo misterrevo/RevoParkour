@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class ParkourCommandExecutor implements CommandExecutor {
     private static final String PARKOUR_COMMAND_NAME = "parkour";
