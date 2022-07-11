@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,8 +15,14 @@ class FileRepository {
     private static final String SLASH = "/";
     private static final String POINT_STRING_SEPARATOR = ";";
     private static final Object YAML_TYPE = ".yml";
+    private static final String PLUGINS_FOLDER_NAME = "plugins";
+    private static final String CURRENT_DIRECTORY_PROPERTY = "user.dir";
+    private static final String CURRENT_PLUGIN_FOLDER_NAME = "REVO_PARKOUR";
 
     String mapPointToString(Point point) {
+        if(Objects.isNull(point)){
+            return null;
+        }
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(point.getId());
         stringBuilder.append(POINT_STRING_SEPARATOR);
@@ -64,9 +71,9 @@ class FileRepository {
     }
 
     File getFolder(String name) throws IOException, URISyntaxException {
-        File folder = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath() + SLASH + name);
+        File folder = new File(System.getProperty(CURRENT_DIRECTORY_PROPERTY) + SLASH + PLUGINS_FOLDER_NAME + SLASH + CURRENT_PLUGIN_FOLDER_NAME + SLASH + name);
         if (!folder.exists()) {
-            folder.createNewFile();
+            folder.mkdir();
         }
         return folder;
     }

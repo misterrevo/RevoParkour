@@ -83,7 +83,7 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
     private void saveAreaToYaml(Area area) throws IOException, URISyntaxException {
         YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(area.getName(), AREA_FOLDER_NAME);
         yamlConfiguration.set(AUTHOR_PATH, area.getAuthor());
-        yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString));
+        yamlConfiguration.set(CHECKPOINTS_PATH, area.getCheckPoints().stream().map(super::mapPointToString).collect(Collectors.toList()));
         yamlConfiguration.set(START_PATH, mapPointToString(area.getStart()));
         yamlConfiguration.set(END_PATH, mapPointToString(area.getEnd()));
         yamlConfiguration.set(FLOOR_PATH, area.getFloor());

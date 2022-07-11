@@ -30,10 +30,10 @@ public class UserFileRepository extends FileRepository implements UserRepository
             }
             User user = buildUser(uuid);
             save(user, yamlConfiguration);
-        } catch (Exception e) {
+            return user;
+        } catch (Exception exception) {
             throw new DatabaseException();
         }
-        return null;
     }
 
     private User buildUser(String uuid) {

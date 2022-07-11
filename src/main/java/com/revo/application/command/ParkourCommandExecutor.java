@@ -47,7 +47,10 @@ public class ParkourCommandExecutor implements CommandExecutor {
 
     private void printListOfAreas(CommandSender sender) {
         List<Area> areaList = areaService.getAllAreas();
-        sendMessage(sender, "&2]-----[AREAS]-----[");
+        sendMessage(sender, "&2]-----[ AREAS ]-----[");
+        if(areaList.size() == 0){
+            sendMessage(sender, "&a No Areas!");
+        }
         areaList.forEach(area -> sendMessage(sender, "&a - "+area.getName()));
     }
 
@@ -64,7 +67,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void createArea(CommandSender sender, String[] args) {
-        if(sender instanceof Player){
+        if(isConsole(sender)){
             sendMessage(sender, "&4This command is only for players!");
             return;
         }
@@ -74,9 +77,15 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(player, "&aSuccessfull created area!");
     }
 
+    private boolean isConsole(CommandSender sender) {
+        return !(sender instanceof Player);
+    }
+
     private void printHelp(CommandSender sender) {
-        sendMessage(sender, "&2]-----["+ InstanceManager.plugin().getName() +"]-----[");
-        sendMessage(sender, "/parkour - list of commands");
+        sendMessage(sender, "&2]-----[ "+ InstanceManager.plugin().getName() +" ]-----[");
+        sendMessage(sender, "&a/parkour - list of commands");
+        sendMessage(sender, "&a/parkour list - list of areas");
+        sendMessage(sender, "&a/parkour create [name] - create new area");
     }
 
     private void sendMessage(CommandSender sender, String message){

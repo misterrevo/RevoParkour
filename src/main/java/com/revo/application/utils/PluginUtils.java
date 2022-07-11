@@ -8,11 +8,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.error.YAMLException;
 
+import java.util.UUID;
+
 public interface PluginUtils {
     static final String APPLICATION_YAML_NAME = "application.yml";
 
-    static Player mapPlayer(String UUID) {
-        return Bukkit.getPlayer(UUID);
+    static Player mapPlayer(String uuid) {
+        return Bukkit.getPlayer(UUID.fromString(uuid));
     }
 
     static String mapUUID(Player player) {
