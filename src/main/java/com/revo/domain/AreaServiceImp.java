@@ -5,6 +5,7 @@ import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
 import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaRepository;
+import com.revo.domain.port.AreaService;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
 
@@ -12,17 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class AreaService {
+public class AreaServiceImp implements AreaService {
     private final AreaRepository areaRepository;
     private final PlayerSupport playerSupport;
     private final UserRepository userRepository;
 
-    public AreaService(AreaRepository areaRepository, PlayerSupport playerSupport, UserRepository userRepository) {
+    public AreaServiceImp(AreaRepository areaRepository, PlayerSupport playerSupport, UserRepository userRepository) {
         this.areaRepository = areaRepository;
         this.playerSupport = playerSupport;
         this.userRepository = userRepository;
     }
 
+    @Override
     public List<Area> getAllAreas() {
         try {
             return areaRepository.findAll();
@@ -31,6 +33,7 @@ public class AreaService {
         }
     }
 
+    @Override
     public void createArea(String UUID, String name) {
         User user = getUser(UUID);
         if (existsByName(name)) {
@@ -44,6 +47,7 @@ public class AreaService {
         return areaRepository.existsByName(name);
     }
 
+    @Override
     public void deleteArea(String UUID, String name) {
         if (!existsByName(name)) {
             throw new AreaNotFoundException();
@@ -71,6 +75,7 @@ public class AreaService {
         areaRepository.deleteByName(name);
     }
 
+    @Override
     public void setStart(String UUID, String name, Point point) {
         Area area = getArea(name);
         updateStartInArea(point, area);
@@ -81,6 +86,7 @@ public class AreaService {
         save(area);
     }
 
+    @Override
     public void setEnd(String UUID, String name, Point point) {
         updateEndInArea(point, getArea(name));
         return;
@@ -91,6 +97,7 @@ public class AreaService {
         save(area);
     }
 
+    @Override
     public void setCheckPoint(String UUID, String name, Point point) {
         Area area = getArea(name);
         addCheckPointInArea(point, area);
@@ -102,6 +109,7 @@ public class AreaService {
         points.add(point);
     }
 
+    @Override
     public void removeCheckPoint(String UUID, String name, Point point) {
         Area area = getArea(name);
         removeCheckPointInArea(point, area);
@@ -124,13 +132,14 @@ public class AreaService {
                 .build();
     }
 
+    @Override
     public void joinToArea(String UUID, String areaName) {
         User user = getUser(UUID);
         Area area = getArea(areaName);
         playerSupport.teleportPlayerToArea(UUID, area.getStart());
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
-        user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint());
+        user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint(UUID));
     }
 
     private Area getArea(String areaName) {
@@ -142,6 +151,7 @@ public class AreaService {
         return userRepository.getUserByUUIDOrCreate(UUID);
     }
 
+    @Override
     public void leaveArea(String UUID) {
         User user = getUser(UUID);
         if (Objects.nonNull(user.getArea())) {
@@ -151,6 +161,7 @@ public class AreaService {
         }
     }
 
+    @Override
     public void reachCheckPoint(String UUID, Point point) {
         User user = getUser(UUID);
         Area area = getArea(user.getArea());
@@ -161,14 +172,21 @@ public class AreaService {
         });
     }
 
+    @Override
     public void win(String UUID) {
+        User winUser = getUser(UUID);
+        Area currentArea = getArea(winUser.getArea());
         getAllUsers().forEach(user -> {
             Area area = getArea(user.getArea());
-            if (Objects.nonNull(area)) {
+            if (Objects.nonNull(area) && isCurrentArea(area, currentArea)) {
                 user.setArea(null);
                 playerSupport.teleportPlayerToLastLocation(UUID);
                 return;
             }
         });
+    }
+
+    private boolean isCurrentArea(Area area, Area currentArea) {
+        return Objects.equals(area.getName(), currentArea.getName());
     }
 }

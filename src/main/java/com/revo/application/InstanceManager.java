@@ -4,8 +4,9 @@ import com.revo.application.command.ParkourCommandExecutor;
 import com.revo.application.database.file.AreaFileRepository;
 import com.revo.application.database.file.UserFileRepository;
 import com.revo.application.utils.PlayerSupportImp;
-import com.revo.domain.AreaService;
+import com.revo.domain.AreaServiceImp;
 import com.revo.domain.port.AreaRepository;
+import com.revo.domain.port.AreaService;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
 
@@ -15,7 +16,7 @@ public abstract class InstanceManager {
     private static AreaRepository areaRepository;
     private static UserRepository userRepository;
     private static PlayerSupport playerSupport;
-    private static AreaService areaService;
+    private static AreaServiceImp areaService;
     private static ParkourCommandExecutor parkourCommandExecutor;
     private static Plugin instance;
 
@@ -42,7 +43,7 @@ public abstract class InstanceManager {
 
     public static AreaService areaService() {
         if (Objects.isNull(areaService)) {
-            areaService = new AreaService(areaRepository(), playerSupport(), userRepository());
+            areaService = new AreaServiceImp(areaRepository(), playerSupport(), userRepository());
         }
         return areaService;
     }

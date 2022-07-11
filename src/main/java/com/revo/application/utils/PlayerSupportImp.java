@@ -4,9 +4,8 @@ import com.revo.domain.Point;
 import com.revo.domain.User;
 import com.revo.domain.port.PlayerSupport;
 import com.revo.domain.port.UserRepository;
+import org.bukkit.entity.Player;
 
-import static com.revo.application.utils.PluginUtils.mapLocation;
-import static com.revo.application.utils.PluginUtils.mapPlayer;
 
 public class PlayerSupportImp implements PlayerSupport {
     private final UserRepository userRepositoryPort;
@@ -17,17 +16,18 @@ public class PlayerSupportImp implements PlayerSupport {
 
     @Override
     public void teleportPlayerToArea(String uuid, Point start) {
-        mapPlayer(uuid).teleport(mapLocation(start));
+        PluginUtils.getPlayerByUUID(uuid).teleport(PluginUtils.mapLocationFromPoint(start));
     }
 
     @Override
     public void teleportPlayerToLastLocation(String uuid) {
-        mapPlayer(uuid).teleport(mapLocation(getUser(uuid).getLastLocation()));
+        PluginUtils.getPlayerByUUID(uuid).teleport(PluginUtils.mapLocationFromPoint(getUser(uuid).getLastLocation()));
     }
 
     @Override
-    public Point getCurrentUserLocationAsPoint() {
-        return null;
+    public Point getCurrentUserLocationAsPoint(String UUID) {
+        Player player = PluginUtils.getPlayerByUUID(UUID);
+        return PluginUtils.mapPointFromLocation(player.getLocation());
     }
 
     private User getUser(String uuid) {

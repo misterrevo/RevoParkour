@@ -3,8 +3,9 @@ package com.revo.application.command;
 import com.revo.application.InstanceManager;
 import com.revo.application.utils.PluginUtils;
 import com.revo.domain.Area;
-import com.revo.domain.AreaService;
 import com.revo.domain.exception.AreaNameInUseException;
+import com.revo.domain.exception.AreaNotFoundException;
+import com.revo.domain.port.AreaService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String CREATE_ARGUMENT = "create";
     private static final String LIST_ARGUMENT = "list";
     private static final String START_ARGUMENT = "start";
+    private static final String END_ARGUMENT = "end";
 
     private final AreaService areaService;
 
@@ -41,11 +43,15 @@ public class ParkourCommandExecutor implements CommandExecutor {
             }
             if(args.length == 2){
                 if(isCreateArgument(args[0])){
-                    createArea(sender, args);
+                    createArea(sender, args[1]);
                     return true;
                 }
                 if(isStartArgument(args[0])){
-                    setStartInArea(sender, args);
+                    setStartInArea(sender, args[1]);
+                    return true;
+                }
+                if(isEndArgument(args[0])){
+                    setEndInArea(sender, args[1]);
                     return true;
                 }
             }
@@ -53,15 +59,38 @@ public class ParkourCommandExecutor implements CommandExecutor {
         return false;
     }
 
-    private void setStartInArea(CommandSender sender, String[] args) {
+    private void setEndInArea(CommandSender sender, String name) {
         if(isConsole(sender)){
             sendOnlyForPlayerMessage(sender);
             return;
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
-        areaService.setStart(playerUuid.toString(), args[1], PluginUtils.mapPoint(player.getLocation()));
-        sendMessage(player, "&aSuccessfully updated area start point!");
+        try{
+            areaService.setEnd(playerUuid.toString(), name, PluginUtils.mapPointFromLocation(player.getLocation()));
+            sendMessage(player, "&aSuccessfully updated area end point!");
+        } catch (AreaNotFoundException exception){
+            sendMessage(player, "&4Can not found area with name " + name);
+        }
+    }
+
+    private boolean isEndArgument(String argument) {
+        return Objects.equals(argument, END_ARGUMENT);
+    }
+
+    private void setStartInArea(CommandSender sender, String name) {
+        if(isConsole(sender)){
+            sendOnlyForPlayerMessage(sender);
+            return;
+        }
+        Player player = (Player) sender;
+        UUID playerUuid = player.getUniqueId();
+        try{
+            areaService.setStart(playerUuid.toString(), name, PluginUtils.mapPointFromLocation(player.getLocation()));
+            sendMessage(player, "&aSuccessfully updated area start point!");
+        } catch (AreaNotFoundException exception){
+            sendMessage(player, "&4Can not found area with name " + name);
+        }
     }
 
     private boolean isStartArgument(String argument) {
@@ -89,7 +118,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         return Objects.equals(command.getName(), PARKOUR_COMMAND_NAME);
     }
 
-    private void createArea(CommandSender sender, String[] args) {
+    private void createArea(CommandSender sender, String name) {
         if(isConsole(sender)){
             sendOnlyForPlayerMessage(sender);
             return;
@@ -97,7 +126,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
         try{
-            areaService.createArea(playerUuid.toString(), args[1]);
+            areaService.createArea(playerUuid.toString(), name);
             sendMessage(player, "&aSuccessfully created area!");
         } catch (AreaNameInUseException exception){
             sendMessage(player, "&4Area name is in use!");
@@ -118,6 +147,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, "&a/parkour list - list of areas");
         sendMessage(sender, "&a/parkour create [name] - create new area");
         sendMessage(sender, "&a/parkour start [name] - sets area start point");
+        sendMessage(sender, "&a/parkour end [name] - sets area end point");
     }
 
     private void sendMessage(CommandSender sender, String message){

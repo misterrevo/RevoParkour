@@ -4,30 +4,24 @@ import com.revo.domain.Point;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.yaml.snakeyaml.error.YAMLException;
 
 import java.util.UUID;
 
 public interface PluginUtils {
-    static Player mapPlayer(String uuid) {
+    static Player getPlayerByUUID(String uuid) {
         return Bukkit.getPlayer(UUID.fromString(uuid));
     }
 
-    static String mapUUID(Player player) {
-        return player.getUniqueId().toString();
+    static Location mapLocationFromPoint(Point point) {
+        return new Location(getWorldByName(point.getWorld()), point.getX(), point.getY(), point.getZ());
     }
 
-    static Location mapLocation(Point point) {
-        return new Location(mapWorld(point.getWorld()), point.getX(), point.getY(), point.getZ());
-    }
-
-    static World mapWorld(String world) {
+    static World getWorldByName(String world) {
         return Bukkit.getWorld(world);
     }
 
-    static Point mapPoint(Location location) {
+    static Point mapPointFromLocation(Location location) {
         World world = location.getWorld();
         return Point.Builder.aPoint()
                 .world(world.getName())

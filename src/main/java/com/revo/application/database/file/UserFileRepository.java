@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.revo.application.utils.PluginUtils.mapPlayer;
+import static com.revo.application.utils.PluginUtils.getPlayerByUUID;
 
 public class UserFileRepository extends FileRepository implements UserRepository {
     private static final String USERS_FOLDER_NAME = "USERS_DATABASE";
@@ -40,7 +40,7 @@ public class UserFileRepository extends FileRepository implements UserRepository
     private User buildUser(String uuid) {
         return User.Builder.anUser()
                 .UUID(uuid)
-                .name(mapPlayer(uuid).getName())
+                .name(getPlayerByUUID(uuid).getName())
                 .build();
     }
 
