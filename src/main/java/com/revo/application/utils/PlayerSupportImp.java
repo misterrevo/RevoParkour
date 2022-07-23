@@ -25,9 +25,15 @@ public class PlayerSupportImp implements PlayerSupport {
     }
 
     @Override
-    public Point getCurrentUserLocationAsPoint(String UUID) {
-        Player player = PluginUtils.getPlayerByUUID(UUID);
+    public Point getCurrentUserLocationAsPoint(String uuid) {
+        Player player = PluginUtils.getPlayerByUUID(uuid);
         return PluginUtils.mapPointFromLocation(player.getLocation());
+    }
+
+    @Override
+    public void teleportPlayerToLastCheckPoint(String uuid) {
+        Player player = PluginUtils.getPlayerByUUID(uuid);
+        player.teleport(PluginUtils.mapLocationFromPoint(getUser(uuid).getLastCheckPoint()));
     }
 
     private User getUser(String uuid) {

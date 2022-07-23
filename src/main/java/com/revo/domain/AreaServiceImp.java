@@ -65,6 +65,7 @@ public class AreaServiceImp implements AreaService {
         users.forEach(target -> {
             if (Objects.equals(target.getArea(), name)) {
                 target.setArea(null);
+                saveUser(target);
                 return;
             }
         });
@@ -225,5 +226,20 @@ public class AreaServiceImp implements AreaService {
         Area area = getArea(name);
         area.setFloor(floor);
         saveArea(area);
+    }
+
+    @Override
+    public boolean touchFloor(String UUID, Point point) {
+        User user = getUser(UUID);
+        Area area = getArea(user.getArea());
+        if(isOnFloorOrUnder(point.getY(), area.getFloor())){
+            playerSupport.teleportPlayerToLastCheckPoint(user.getUUID());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isOnFloorOrUnder(int currentY, int floor) {
+        return currentY <= floor;
     }
 }

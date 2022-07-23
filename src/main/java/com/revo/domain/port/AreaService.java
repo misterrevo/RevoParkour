@@ -31,4 +31,6 @@ public interface AreaService {
     void win(String UUID);
 
     void setFloor(String name, int floor);
+
+    boolean touchFloor(String UUID, Point point);
 }
