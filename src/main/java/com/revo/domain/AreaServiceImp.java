@@ -1,5 +1,6 @@
 package com.revo.domain;
 
+import com.revo.domain.exception.AreaConfigurationException;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
@@ -136,10 +137,17 @@ public class AreaServiceImp implements AreaService {
     public void joinToArea(String UUID, String areaName) {
         User user = getUser(UUID);
         Area area = getArea(areaName);
+        if(areaIsNotConfigured(area)){
+            throw new AreaConfigurationException();
+        }
         playerSupport.teleportPlayerToArea(UUID, area.getStart());
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
         user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint(UUID));
+    }
+
+    private boolean areaIsNotConfigured(Area area) {
+        return Objects.nonNull(area.getStart()) && Objects.nonNull(area.getEnd()) && Objects.nonNull(area.getFloor());
     }
 
     private Area getArea(String areaName) {
