@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class ParkourCommandExecutor implements CommandExecutor {
     private static final String PARKOUR_COMMAND_NAME = "parkour";
@@ -25,7 +24,28 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String END_ARGUMENT = "end";
     private static final String DELETE_ARGUMENT = "delete";
     private static final String CHECKPOINT_ARGUMENT = "checkpoint";
-    private static final Object SET_ARGUMENT = "set";
+    private static final String SET_ARGUMENT = "set";
+
+    private static final String SET_CHECKPOINT_MESSAGE = "Successfully set checkpoint in area";
+    private static final String DELETE_MESSAGE = "&aSuccessfully deleted area!";
+    private static final String SET_ENDPOINT_MESSAGE = "&aSuccessfully updated area end point!";
+    private static final String CAN_NOT_FOUND_AREA_MESSAGE = "&4Can not found area with name %s";
+    private static final String SET_START_MESSAGE = "&aSuccessfully updated area start point!";
+    private static final String AREA_LIST_TOP_TAG = "&2]-----[ AREAS ]-----[";
+    private static final String NO_AREAS_MESSAGE = "&a No Areas!";
+    private static final String SINGLE_AREA_MESSAGE = "&a - %s";
+    private static final String CREATE_MESSAGE = "&aSuccessfully created area!";
+    private static final String AREA_NAME_IN_USE_MESSAGE = "&4Area name is in use!";
+    private static final String ONLY_FOR_PLAYER_MESSAGE = "&4This command is only for players!";
+
+    private static final String AREA_COMMAND_TOP_TAG = "&2]-----[ %s ]-----[";
+    private static final String AREA_COMMAND_PARKOUR_MESSAGE = "&a/parkour - list of commands";
+    private static final String AREA_COMMAND_PARKOUR_LIST_MESSAGE = "&a/parkour list - list of areas";
+    private static final String AREA_COMMAND_PARKOUR_CREATE_MESSAGE = "&a/parkour create [name] - create new area";
+    private static final String AREA_COMMAND_PARKOUR_SET_START_MESSAGE = "&a/parkour start [name] - sets area start point";
+    private static final String AREA_COMMAND_PARKOUR_SET_END_MESSAGE = "&a/parkour end [name] - sets area end point";
+    private static final String AREA_COMMAND_PARKOUR_DELETE_MESSAGE = "&a/parkour delete [name] - deletes area";
+    private static final String AREA_COMMAND_PARKOUR_SET_CHECKPOINT_MESSAGE = "&a/parkour checkpoint set [name] - sets checkpoint in area";
 
     private final AreaService areaService;
 
@@ -35,37 +55,37 @@ public class ParkourCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(isParkourCommand(command)){
-            if(args.length == 0){
+        if (isParkourCommand(command)) {
+            if (args.length == 0) {
                 printHelp(sender);
                 return true;
             }
-            if(args.length == 1){
-                if (isListArgument(args[0])){
+            if (args.length == 1) {
+                if (isListArgument(args[0])) {
                     printListOfAreas(sender);
                     return true;
                 }
             }
-            if(args.length == 2){
-                if(isCreateArgument(args[0])){
+            if (args.length == 2) {
+                if (isCreateArgument(args[0])) {
                     createArea(sender, args[1]);
                     return true;
                 }
-                if(isStartArgument(args[0])){
+                if (isStartArgument(args[0])) {
                     setStartInArea(sender, args[1]);
                     return true;
                 }
-                if(isEndArgument(args[0])){
+                if (isEndArgument(args[0])) {
                     setEndInArea(sender, args[1]);
                     return true;
                 }
-                if(isDeleteArgument(args[0])){
+                if (isDeleteArgument(args[0])) {
                     deleteArea(sender, args[1]);
                     return true;
                 }
             }
-            if(args.length == 3){
-                if(isCheckPointSetArgument(args[0], args[1])){
+            if (args.length == 3) {
+                if (isCheckPointSetArgument(args[0], args[1])) {
                     setCheckPoint(sender, args[2]);
                     return true;
                 }
@@ -75,15 +95,16 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void setCheckPoint(CommandSender sender, String name) {
-        if(isConsole(sender)){
+        if (isConsole(sender)) {
             sendOnlyForPlayerMessage(sender);
             return;
         }
-        try{
+        try {
             Player player = (Player) sender;
             Point point = PluginUtils.mapPointFromLocation(player.getLocation());
             areaService.setCheckPoint(name, point);
-        } catch (AreaNotFoundException exception){
+            sendMessage(player, SET_CHECKPOINT_MESSAGE);
+        } catch (AreaNotFoundException exception) {
             sendNotFoundAreaMessage(name, sender);
         }
     }
@@ -95,8 +116,8 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private void deleteArea(CommandSender sender, String name) {
         try {
             areaService.deleteArea(name);
-            sendMessage(sender, "&aSuccessfully deleted area!");
-        }catch (AreaNotFoundException exception){
+            sendMessage(sender, DELETE_MESSAGE);
+        } catch (AreaNotFoundException exception) {
             sendNotFoundAreaMessage(name, sender);
         }
     }
@@ -106,22 +127,22 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void setEndInArea(CommandSender sender, String name) {
-        if(isConsole(sender)){
+        if (isConsole(sender)) {
             sendOnlyForPlayerMessage(sender);
             return;
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
-        try{
+        try {
             areaService.setEnd(playerUuid.toString(), name, PluginUtils.mapPointFromLocation(player.getLocation()));
-            sendMessage(player, "&aSuccessfully updated area end point!");
-        } catch (AreaNotFoundException exception){
+            sendMessage(player, SET_ENDPOINT_MESSAGE);
+        } catch (AreaNotFoundException exception) {
             sendNotFoundAreaMessage(name, player);
         }
     }
 
     private void sendNotFoundAreaMessage(String name, CommandSender sender) {
-        sendMessage(sender, "&4Can not found area with name " + name);
+        sendMessage(sender, CAN_NOT_FOUND_AREA_MESSAGE.formatted(name));
     }
 
     private boolean isEndArgument(String argument) {
@@ -129,17 +150,17 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void setStartInArea(CommandSender sender, String name) {
-        if(isConsole(sender)){
+        if (isConsole(sender)) {
             sendOnlyForPlayerMessage(sender);
             return;
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
-        try{
+        try {
             areaService.setStart(playerUuid.toString(), name, PluginUtils.mapPointFromLocation(player.getLocation()));
-            sendMessage(player, "&aSuccessfully updated area start point!");
-        } catch (AreaNotFoundException exception){
-            sendMessage(player, "&4Can not found area with name " + name);
+            sendMessage(player, SET_START_MESSAGE);
+        } catch (AreaNotFoundException exception) {
+            sendNotFoundAreaMessage(name, player);
         }
     }
 
@@ -149,11 +170,11 @@ public class ParkourCommandExecutor implements CommandExecutor {
 
     private void printListOfAreas(CommandSender sender) {
         List<Area> areaList = areaService.getAllAreas();
-        sendMessage(sender, "&2]-----[ AREAS ]-----[");
-        if(areaList.size() == 0){
-            sendMessage(sender, "&a No Areas!");
+        sendMessage(sender, AREA_LIST_TOP_TAG);
+        if (areaList.size() == 0) {
+            sendMessage(sender, NO_AREAS_MESSAGE);
         }
-        areaList.forEach(area -> sendMessage(sender, "&a - "+area.getName()));
+        areaList.forEach(area -> sendMessage(sender, SINGLE_AREA_MESSAGE.formatted(area.getName())));
     }
 
     private boolean isListArgument(String argument) {
@@ -169,22 +190,22 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void createArea(CommandSender sender, String name) {
-        if(isConsole(sender)){
+        if (isConsole(sender)) {
             sendOnlyForPlayerMessage(sender);
             return;
         }
         Player player = (Player) sender;
         UUID playerUuid = player.getUniqueId();
-        try{
+        try {
             areaService.createArea(playerUuid.toString(), name);
-            sendMessage(player, "&aSuccessfully created area!");
-        } catch (AreaNameInUseException exception){
-            sendMessage(player, "&4Area name is in use!");
+            sendMessage(player, CREATE_MESSAGE);
+        } catch (AreaNameInUseException exception) {
+            sendMessage(player, AREA_NAME_IN_USE_MESSAGE);
         }
     }
 
     private void sendOnlyForPlayerMessage(CommandSender sender) {
-        sendMessage(sender, "&4This command is only for players!");
+        sendMessage(sender, ONLY_FOR_PLAYER_MESSAGE);
     }
 
     private boolean isConsole(CommandSender sender) {
@@ -192,17 +213,17 @@ public class ParkourCommandExecutor implements CommandExecutor {
     }
 
     private void printHelp(CommandSender sender) {
-        sendMessage(sender, "&2]-----[ "+ InstanceManager.plugin().getName() +" ]-----[");
-        sendMessage(sender, "&a/parkour - list of commands");
-        sendMessage(sender, "&a/parkour list - list of areas");
-        sendMessage(sender, "&a/parkour create [name] - create new area");
-        sendMessage(sender, "&a/parkour start [name] - sets area start point");
-        sendMessage(sender, "&a/parkour end [name] - sets area end point");
-        sendMessage(sender, "&a/parkour delete [name] - deletes area");
-        sendMessage(sender, "&a/parkour checkpoint set [name] - sets checkpoint in area");
+        sendMessage(sender, AREA_COMMAND_TOP_TAG.formatted(InstanceManager.plugin().getName()));
+        sendMessage(sender, AREA_COMMAND_PARKOUR_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_LIST_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_CREATE_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_SET_START_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_SET_END_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_DELETE_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_SET_CHECKPOINT_MESSAGE);
     }
 
-    private void sendMessage(CommandSender sender, String message){
+    private void sendMessage(CommandSender sender, String message) {
         sender.sendMessage(PluginUtils.translateSpecialCode(message));
     }
 }
