@@ -4,6 +4,7 @@ import com.revo.domain.exception.AreaConfigurationException;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
+import com.revo.domain.exception.IsNotCheckPointException;
 import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaRepository;
 import com.revo.domain.port.AreaService;
@@ -181,8 +182,10 @@ public class AreaServiceImp implements AreaService {
         area.getCheckPoints().forEach(target -> {
             if (Objects.equals(target, point)) {
                 user.setLastCheckPoint(point);
+                return;
             }
         });
+        throw new IsNotCheckPointException();
     }
 
     @Override

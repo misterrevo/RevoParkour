@@ -1,5 +1,6 @@
 package com.revo.application;
 
+import com.revo.application.event.ReachCheckPointEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Plugin extends JavaPlugin {
@@ -9,5 +10,6 @@ public class Plugin extends JavaPlugin {
     public void onEnable() {
         InstanceManager.loadPluginInstance(this);
         getCommand(PARKOUR_COMMAND_NAME).setExecutor(InstanceManager.parkourCommandExecutor());
+        getServer().getPluginManager().registerEvents(new ReachCheckPointEvent(), this);
     }
 }
