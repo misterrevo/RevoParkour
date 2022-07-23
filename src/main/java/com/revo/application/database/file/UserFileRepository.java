@@ -68,6 +68,25 @@ public class UserFileRepository extends FileRepository implements UserRepository
         return users;
     }
 
+    @Override
+    public void save(User user) {
+        try{
+            saveUserToYaml(user);
+        } catch (Exception exception){
+            throw new DatabaseException();
+        }
+    }
+
+    private void saveUserToYaml(User user) throws IOException, URISyntaxException {
+        YamlConfiguration yamlConfiguration = getYamlConfigurationInFolder(user.getUUID(), USERS_FOLDER_NAME);
+        yamlConfiguration.set(UUID_PATH, user.getUUID());
+        yamlConfiguration.set(NAME_PATH, user.getName());
+        yamlConfiguration.set(AREA_PATH, user.getArea());
+        yamlConfiguration.set(LAST_CHECKPOINT_PATH, mapPointToString(user.getLastCheckPoint()));
+        yamlConfiguration.set(LAST_LOCATION_PATH, mapPointToString(user.getLastLocation()));
+        saveYamlConfiguration(yamlConfiguration, user.getUUID(), USERS_FOLDER_NAME);
+    }
+
     private User buildUser(YamlConfiguration yamlConfiguration) {
         return User.Builder.anUser()
                 .UUID(yamlConfiguration.getString(UUID_PATH))

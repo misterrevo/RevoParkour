@@ -29,4 +29,6 @@ public interface AreaService {
     void reachCheckPoint(String UUID, Point point);
 
     void win(String UUID);
+
+    void setFloor(String name, int floor);
 }

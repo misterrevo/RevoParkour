@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class FileRepository {
+abstract class FileRepository {
     private static final String SLASH = "/";
     private static final String POINT_STRING_SEPARATOR = ";";
     private static final Object YAML_TYPE = ".yml";
@@ -24,8 +24,6 @@ class FileRepository {
             return null;
         }
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(point.getId());
-        stringBuilder.append(POINT_STRING_SEPARATOR);
         stringBuilder.append(point.getWorld());
         stringBuilder.append(POINT_STRING_SEPARATOR);
         stringBuilder.append(point.getX());
@@ -38,11 +36,11 @@ class FileRepository {
 
     YamlConfiguration getYamlConfigurationInFolder(String id, String folderName) throws IOException, URISyntaxException {
         File folder = getFolder(folderName);
-        File file = getFileInFolder(folder, id);
+        File file = createFileInFolderAndGet(folder, id);
         return YamlConfiguration.loadConfiguration(file);
     }
 
-    private File getFileInFolder(File folder, String id) throws IOException {
+    private File createFileInFolderAndGet(File folder, String id) throws IOException {
         File file = buildFile(folder, id);
         if (!file.exists()) {
             file.createNewFile();
@@ -67,7 +65,7 @@ class FileRepository {
     }
 
     void saveYamlConfiguration(YamlConfiguration yamlConfiguration, String id, String folderName) throws IOException, URISyntaxException {
-        yamlConfiguration.save(getFileInFolder(getFolder(folderName), id));
+        yamlConfiguration.save(createFileInFolderAndGet(getFolder(folderName), id));
     }
 
     File getFolder(String name) throws IOException, URISyntaxException {
@@ -97,11 +95,10 @@ class FileRepository {
 
     private Point buildPoint(String[] splittedString) {
         return Point.Builder.aPoint()
-                .id(Long.valueOf(splittedString[0]))
-                .world(splittedString[1])
-                .x(Integer.valueOf(splittedString[2]))
-                .y(Integer.valueOf(splittedString[3]))
-                .z(Integer.valueOf(splittedString[4]))
+                .world(splittedString[0])
+                .x(Integer.valueOf(splittedString[1]))
+                .y(Integer.valueOf(splittedString[2]))
+                .z(Integer.valueOf(splittedString[3]))
                 .build();
     }
 }

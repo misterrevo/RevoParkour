@@ -4,26 +4,16 @@ package com.revo.domain;
 import java.util.Objects;
 
 public class Point {
-    private Long id;
     private String world;
     private int x;
     private int y;
     private int z;
 
-    public Point(Long id, String world, int x, int y, int z) {
-        this.id = id;
+    public Point(String world, int x, int y, int z) {
         this.world = world;
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getWorld() {
@@ -59,7 +49,6 @@ public class Point {
     }
 
     public static final class Builder {
-        private Long id;
         private String world;
         private int x;
         private int y;
@@ -70,11 +59,6 @@ public class Point {
 
         public static Builder aPoint() {
             return new Builder();
-        }
-
-        public Builder id(Long id) {
-            this.id = id;
-            return this;
         }
 
         public Builder world(String world) {
@@ -98,7 +82,7 @@ public class Point {
         }
 
         public Point build() {
-            return new Point(id, world, x, y, z);
+            return new Point(world, x, y, z);
         }
     }
 
@@ -113,5 +97,15 @@ public class Point {
     @Override
     public int hashCode() {
         return Objects.hash(world, x, y, z);
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "world='" + world + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }

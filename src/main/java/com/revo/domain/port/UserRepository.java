@@ -7,4 +7,5 @@ import java.util.List;
 public interface UserRepository {
     User getUserByUUIDOrCreate(String uuid);
     List<User> findAll();
+    void save(User user);
 }

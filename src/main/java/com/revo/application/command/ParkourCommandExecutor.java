@@ -7,14 +7,18 @@ import com.revo.domain.Point;
 import com.revo.domain.exception.AreaConfigurationException;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
+import com.revo.domain.exception.IsNotCheckPointException;
+import com.revo.domain.exception.UserHasAreaException;
 import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaService;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,6 +34,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final Object REMOVE_ARGUMENT = "remove";
     private static final String JOIN_ARGUMENT = "join";
     private static final String LEAVE_ARGUMENT = "leave";
+    private static final String FLOOR_ARGUMENT = "floor";
 
     private static final String AREA_COMMAND_TOP_TAG = "&2]-----[ %s ]-----[";
     private static final String AREA_COMMAND_PARKOUR_MESSAGE = "&a/parkour - list of commands";
@@ -42,8 +47,9 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String AREA_COMMAND_PARKOUR_REMOVE_CHECKPOINT_MESSAGE = "&a/parkour checkpoint remove [name] - removes checkpoint in area";
     private static final String AREA_COMMAND_PARKOUR_JOIN_MESSAGE = "&a/parkour join [name] - join to area";
     private static final String AREA_COMMAND_PARKOUR_LEAVE_MESSAGE = "&a/parkour leave - leave from area";
+    private static final String AREA_COMMAND_PARKOUR_FLOOR_MESSAGE = "&a/parkour floor [name] - set floor in area";
 
-    private static final String SET_CHECKPOINT_MESSAGE = "Successfully set checkpoint in area!";
+    private static final String SET_CHECKPOINT_MESSAGE = "&aSuccessfully set checkpoint in area!";
     private static final String DELETE_MESSAGE = "&aSuccessfully deleted area!";
     private static final String SET_ENDPOINT_MESSAGE = "&aSuccessfully updated area end point!";
     private static final String CAN_NOT_FOUND_AREA_MESSAGE = "&4Can not found area with name %s!";
@@ -60,6 +66,8 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String NOT_CONFIGURED_AREA_MESSAGE = "&4Area are not configured yet!";
     private static final String NOT_IN_AREA_MESSAGE = "&4You are not in area!";
     private static final String LEAVE_MESSAGE = "&aSuccessfully leaved area!";
+    private static final String IN_AREA_MESSAGE = "&4You are in area! Type: /parkour leave";
+    private static final String FLOOR_SET_MESSAGE = "&aSuccessfully set floor in area!";
 
     private final AreaService areaService;
 
@@ -85,6 +93,10 @@ public class ParkourCommandExecutor implements CommandExecutor {
                 }
             }
             if (args.length == 2) {
+                if (isFloorArgument(args[0])){
+                    setFloor(sender, args[1]);
+                    return true;
+                }
                 if (isCreateArgument(args[0])) {
                     createArea(sender, args[1]);
                     return true;
@@ -120,6 +132,25 @@ public class ParkourCommandExecutor implements CommandExecutor {
         return false;
     }
 
+    private void setFloor(CommandSender sender, String name) {
+        if (isConsole(sender)) {
+            sendOnlyForPlayerMessage(sender);
+            return;
+        }
+        try {
+            Player player = (Player) sender;
+            Location location = player.getLocation();
+            areaService.setFloor(name, (int) location.getY());
+            sendMessage(player, FLOOR_SET_MESSAGE);
+        } catch (AreaNotFoundException exception) {
+            sendNotFoundAreaMessage(name, sender);
+        }
+    }
+
+    private boolean isFloorArgument(String argument) {
+        return Objects.equals(argument, FLOOR_ARGUMENT);
+    }
+
     private void leaveArea(CommandSender sender) {
         if (isConsole(sender)) {
             sendOnlyForPlayerMessage(sender);
@@ -153,6 +184,8 @@ public class ParkourCommandExecutor implements CommandExecutor {
             sendNotFoundAreaMessage(name, sender);
         } catch (AreaConfigurationException exception){
             sendMessage(sender, NOT_CONFIGURED_AREA_MESSAGE);
+        } catch (UserHasAreaException exception){
+            sendMessage(sender, IN_AREA_MESSAGE);
         }
     }
 
@@ -172,7 +205,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
             sendMessage(player, REMOVE_CHECKPOINT_MESSAGE);
         } catch (AreaNotFoundException exception) {
             sendNotFoundAreaMessage(name, sender);
-        } catch (NullPointerException exception) {
+        } catch (IsNotCheckPointException exception) {
             sendMessage(sender, IS_NOT_CHECKPOINT_MESSAGE);
         }
     }
@@ -311,6 +344,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, AREA_COMMAND_PARKOUR_REMOVE_CHECKPOINT_MESSAGE);
         sendMessage(sender, AREA_COMMAND_PARKOUR_JOIN_MESSAGE);
         sendMessage(sender, AREA_COMMAND_PARKOUR_LEAVE_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_FLOOR_MESSAGE);
     }
 
     private void sendMessage(CommandSender sender, String message) {

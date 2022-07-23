@@ -5,6 +5,7 @@ import com.revo.application.utils.PluginUtils;
 import com.revo.domain.Area;
 import com.revo.domain.User;
 import com.revo.domain.exception.IsNotCheckPointException;
+import com.revo.domain.exception.ReachEndPoint;
 import com.revo.domain.port.AreaService;
 import com.revo.domain.port.UserRepository;
 import org.bukkit.entity.Player;
@@ -35,8 +36,9 @@ public class PlayerMoveEventListener implements Listener {
             }
             try{
                 playerReachCheckPoint(player, user);
-                player.sendMessage(REACH_CHECKPOINT_MESSAGE);
-            } catch (IsNotCheckPointException exception) {}
+            } catch (ReachEndPoint exception) {
+                player.sendMessage(PluginUtils.translateSpecialCode(REACH_CHECKPOINT_MESSAGE));
+            }
         }
     }
 
@@ -45,7 +47,7 @@ public class PlayerMoveEventListener implements Listener {
     }
 
     private void winArea(Player player, User user) {
-        player.sendMessage(WIN_MESSAGE);
+        player.sendMessage(PluginUtils.translateSpecialCode(WIN_MESSAGE));
         areaService.win(user.getUUID());
     }
 

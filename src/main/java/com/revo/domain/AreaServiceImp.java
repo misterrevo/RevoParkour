@@ -5,6 +5,8 @@ import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.exception.DatabaseException;
 import com.revo.domain.exception.IsNotCheckPointException;
+import com.revo.domain.exception.ReachEndPoint;
+import com.revo.domain.exception.UserHasAreaException;
 import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaRepository;
 import com.revo.domain.port.AreaService;
@@ -42,7 +44,7 @@ public class AreaServiceImp implements AreaService {
             throw new AreaNameInUseException();
         }
         Area area = buildArea(name, user);
-        save(area);
+        saveArea(area);
     }
 
     private boolean existsByName(String name) {
@@ -66,7 +68,6 @@ public class AreaServiceImp implements AreaService {
                 return;
             }
         });
-        throw new UserHasNotAreaException();
     }
 
     private List<User> getAllUsers() {
@@ -85,7 +86,7 @@ public class AreaServiceImp implements AreaService {
 
     private void updateStartInArea(Point point, Area area) {
         area.setStart(point);
-        save(area);
+        saveArea(area);
     }
 
     @Override
@@ -96,14 +97,14 @@ public class AreaServiceImp implements AreaService {
 
     private void updateEndInArea(Point point, Area area) {
         area.setEnd(point);
-        save(area);
+        saveArea(area);
     }
 
     @Override
     public void setCheckPoint(String name, Point point) {
         Area area = getArea(name);
         addCheckPointInArea(point, area);
-        save(area);
+        saveArea(area);
     }
 
     private void addCheckPointInArea(Point point, Area area) {
@@ -119,11 +120,18 @@ public class AreaServiceImp implements AreaService {
 
     private void removeCheckPointInArea(Point point, Area area) {
         List<Point> points = area.getCheckPoints();
+        if(isNotInAreaCheckPoint(point, points)){
+            throw new IsNotCheckPointException();
+        }
         points.remove(point);
-        save(area);
+        saveArea(area);
     }
 
-    private void save(Area area) {
+    private boolean isNotInAreaCheckPoint(Point point, List<Point> points) {
+        return !points.contains(point);
+    }
+
+    private void saveArea(Area area) {
         areaRepository.save(area);
     }
 
@@ -141,14 +149,22 @@ public class AreaServiceImp implements AreaService {
         if(areaIsNotConfigured(area)){
             throw new AreaConfigurationException();
         }
-        playerSupport.teleportPlayerToArea(UUID, area.getStart());
+        if(userHaveArea(user)){
+            throw new UserHasAreaException();
+        }
         user.setArea(area.getName());
         user.setLastCheckPoint(area.getStart());
         user.setLastLocation(playerSupport.getCurrentUserLocationAsPoint(UUID));
+        playerSupport.teleportPlayerToArea(UUID, area.getStart());
+        saveUser(user);
+    }
+
+    private void saveUser(User user) {
+        userRepository.save(user);
     }
 
     private boolean areaIsNotConfigured(Area area) {
-        return Objects.nonNull(area.getStart()) && Objects.nonNull(area.getEnd()) && Objects.nonNull(area.getFloor());
+        return Objects.isNull(area.getStart()) || Objects.isNull(area.getEnd()) || Objects.isNull(area.getFloor());
     }
     @Override
     public Area getArea(String areaName) {
@@ -165,6 +181,7 @@ public class AreaServiceImp implements AreaService {
         User user = getUser(UUID);
         if (userHaveArea(user)) {
             user.setArea(null);
+            saveUser(user);
             playerSupport.teleportPlayerToLastLocation(UUID);
             return;
         }
@@ -180,12 +197,16 @@ public class AreaServiceImp implements AreaService {
         User user = getUser(UUID);
         Area area = getArea(user.getArea());
         area.getCheckPoints().forEach(target -> {
-            if (Objects.equals(target, point)) {
+            if (reachNewCheckPoint(point, user, target)) {
                 user.setLastCheckPoint(point);
-                return;
+                saveUser(user);
+                throw new ReachEndPoint();
             }
         });
-        throw new IsNotCheckPointException();
+    }
+
+    private boolean reachNewCheckPoint(Point point, User user, Point target) {
+        return target.equals(point) && !user.getLastCheckPoint().equals(point);
     }
 
     @Override
@@ -194,7 +215,15 @@ public class AreaServiceImp implements AreaService {
         Area area = getArea(user.getArea());
         if (Objects.nonNull(area)) {
             user.setArea(null);
+            saveUser(user);
             playerSupport.teleportPlayerToLastLocation(UUID);
         }
+    }
+
+    @Override
+    public void setFloor(String name, int floor) {
+        Area area = getArea(name);
+        area.setFloor(floor);
+        saveArea(area);
     }
 }

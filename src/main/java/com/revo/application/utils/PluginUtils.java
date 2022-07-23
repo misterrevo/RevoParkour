@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public interface PluginUtils {
@@ -14,6 +15,9 @@ public interface PluginUtils {
     }
 
     static Location mapLocationFromPoint(Point point) {
+        if(Objects.isNull(point)) {
+            return null;
+        }
         return new Location(getWorldByName(point.getWorld()), point.getX(), point.getY(), point.getZ());
     }
 

@@ -48,10 +48,12 @@ public class AreaFileRepository extends FileRepository implements AreaRepository
     public Optional<Area> findByName(String name){
         try {
             if(!existsByName(name)){
-                throw new AreaNotFoundException();
+                return Optional.ofNullable(null);
             }
             return Optional.of(buildArea(getYamlConfigurationInFolder(name, AREA_FOLDER_NAME)));
         } catch (Exception e) {
+            System.out.println(e.getMessage() + "|" );
+            e.printStackTrace();
             throw new DatabaseException();
         }
     }
