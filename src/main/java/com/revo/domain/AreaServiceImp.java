@@ -162,11 +162,16 @@ public class AreaServiceImp implements AreaService {
     @Override
     public void leaveArea(String UUID) {
         User user = getUser(UUID);
-        if (Objects.nonNull(user.getArea())) {
+        if (userHaveArea(user)) {
             user.setArea(null);
             playerSupport.teleportPlayerToLastLocation(UUID);
             return;
         }
+        throw new UserHasNotAreaException();
+    }
+
+    private boolean userHaveArea(User user) {
+        return Objects.nonNull(user.getArea());
     }
 
     @Override

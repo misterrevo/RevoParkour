@@ -7,6 +7,7 @@ import com.revo.domain.Point;
 import com.revo.domain.exception.AreaConfigurationException;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
+import com.revo.domain.exception.UserHasNotAreaException;
 import com.revo.domain.port.AreaService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,6 +29,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String SET_ARGUMENT = "set";
     private static final Object REMOVE_ARGUMENT = "remove";
     private static final String JOIN_ARGUMENT = "join";
+    private static final String LEAVE_ARGUMENT = "leave";
 
     private static final String AREA_COMMAND_TOP_TAG = "&2]-----[ %s ]-----[";
     private static final String AREA_COMMAND_PARKOUR_MESSAGE = "&a/parkour - list of commands";
@@ -39,6 +41,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String AREA_COMMAND_PARKOUR_SET_CHECKPOINT_MESSAGE = "&a/parkour checkpoint set [name] - sets checkpoint in area";
     private static final String AREA_COMMAND_PARKOUR_REMOVE_CHECKPOINT_MESSAGE = "&a/parkour checkpoint remove [name] - removes checkpoint in area";
     private static final String AREA_COMMAND_PARKOUR_JOIN_MESSAGE = "&a/parkour join [name] - join to area";
+    private static final String AREA_COMMAND_PARKOUR_LEAVE_MESSAGE = "&a/parkour leave - leave from area";
 
     private static final String SET_CHECKPOINT_MESSAGE = "Successfully set checkpoint in area!";
     private static final String DELETE_MESSAGE = "&aSuccessfully deleted area!";
@@ -55,6 +58,8 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String IS_NOT_CHECKPOINT_MESSAGE = "&4Can not found checkpoint here!";
     private static final String JOIN_MESSAGE = "&aSuccessfully join to area!";
     private static final String NOT_CONFIGURED_AREA_MESSAGE = "&4Area are not configured yet!";
+    private static final String NOT_IN_AREA_MESSAGE = "&4You are not in area!";
+    private static final String LEAVE_MESSAGE = "&aSuccessfully leaved area!";
 
     private final AreaService areaService;
 
@@ -72,6 +77,10 @@ public class ParkourCommandExecutor implements CommandExecutor {
             if (args.length == 1) {
                 if (isListArgument(args[0])) {
                     printListOfAreas(sender);
+                    return true;
+                }
+                if (isLeaveArgument(args[0])){
+                    leaveArea(sender);
                     return true;
                 }
             }
@@ -109,6 +118,25 @@ public class ParkourCommandExecutor implements CommandExecutor {
             }
         }
         return false;
+    }
+
+    private void leaveArea(CommandSender sender) {
+        if (isConsole(sender)) {
+            sendOnlyForPlayerMessage(sender);
+            return;
+        }
+        try {
+            Player player = (Player) sender;
+            UUID uuid = player.getUniqueId();
+            areaService.leaveArea(uuid.toString());
+            sendMessage(player, LEAVE_MESSAGE);
+        } catch (UserHasNotAreaException exception){
+            sendMessage(sender, NOT_IN_AREA_MESSAGE);
+        }
+    }
+
+    private boolean isLeaveArgument(String argument) {
+        return Objects.equals(argument, LEAVE_ARGUMENT);
     }
 
     private void joinToArea(CommandSender sender, String name) {
@@ -282,6 +310,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, AREA_COMMAND_PARKOUR_SET_CHECKPOINT_MESSAGE);
         sendMessage(sender, AREA_COMMAND_PARKOUR_REMOVE_CHECKPOINT_MESSAGE);
         sendMessage(sender, AREA_COMMAND_PARKOUR_JOIN_MESSAGE);
+        sendMessage(sender, AREA_COMMAND_PARKOUR_LEAVE_MESSAGE);
     }
 
     private void sendMessage(CommandSender sender, String message) {
