@@ -22,6 +22,8 @@ public interface AreaService {
 
     void joinToArea(String UUID, String areaName);
 
+    Area getArea(String areaName);
+
     void leaveArea(String UUID);
 
     void reachCheckPoint(String UUID, Point point);

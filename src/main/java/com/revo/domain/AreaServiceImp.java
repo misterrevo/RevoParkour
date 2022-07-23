@@ -150,8 +150,8 @@ public class AreaServiceImp implements AreaService {
     private boolean areaIsNotConfigured(Area area) {
         return Objects.nonNull(area.getStart()) && Objects.nonNull(area.getEnd()) && Objects.nonNull(area.getFloor());
     }
-
-    private Area getArea(String areaName) {
+    @Override
+    public Area getArea(String areaName) {
         return areaRepository.findByName(areaName)
                 .orElseThrow(() -> new AreaNotFoundException());
     }
@@ -195,7 +195,6 @@ public class AreaServiceImp implements AreaService {
         if (Objects.nonNull(area)) {
             user.setArea(null);
             playerSupport.teleportPlayerToLastLocation(UUID);
-            return;
         }
     }
 }

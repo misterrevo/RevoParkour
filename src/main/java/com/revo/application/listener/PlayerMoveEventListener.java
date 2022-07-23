@@ -1,7 +1,8 @@
-package com.revo.application.event;
+package com.revo.application.listener;
 
 import com.revo.application.InstanceManager;
 import com.revo.application.utils.PluginUtils;
+import com.revo.domain.Area;
 import com.revo.domain.User;
 import com.revo.domain.exception.IsNotCheckPointException;
 import com.revo.domain.port.AreaService;
@@ -14,8 +15,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ReachCheckPointEvent implements Listener {
+public class PlayerMoveEventListener implements Listener {
     private static final String REACH_CHECKPOINT_MESSAGE = "&aYou reach checkpoint!";
+    private static final String WIN_MESSAGE = "&aYou win an area!";
 
     private final UserRepository userRepository = InstanceManager.userRepository();
     private final AreaService areaService = InstanceManager.areaService();
@@ -26,6 +28,11 @@ public class ReachCheckPointEvent implements Listener {
         UUID uuid = player.getUniqueId();
         User user = userRepository.getUserByUUIDOrCreate(uuid.toString());
         if(Objects.nonNull(user.getArea())){
+            Area area = areaService.getArea(user.getArea());
+            if(PluginUtils.mapPointFromLocation(player.getLocation()).equals(area.getEnd())){
+                player.sendMessage(WIN_MESSAGE);
+                areaService.win(user.getUUID());
+            }
             try{
                 areaService.reachCheckPoint(user.getUUID(), PluginUtils.mapPointFromLocation(player.getLocation()));
                 player.sendMessage(REACH_CHECKPOINT_MESSAGE);
