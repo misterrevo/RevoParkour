@@ -29,14 +29,27 @@ public class PlayerMoveEventListener implements Listener {
         User user = userRepository.getUserByUUIDOrCreate(uuid.toString());
         if(Objects.nonNull(user.getArea())){
             Area area = areaService.getArea(user.getArea());
-            if(PluginUtils.mapPointFromLocation(player.getLocation()).equals(area.getEnd())){
-                player.sendMessage(WIN_MESSAGE);
-                areaService.win(user.getUUID());
+            if(playerReachEndPoint(player, area)){
+                winArea(player, user);
+                return;
             }
             try{
-                areaService.reachCheckPoint(user.getUUID(), PluginUtils.mapPointFromLocation(player.getLocation()));
+                playerReachCheckPoint(player, user);
                 player.sendMessage(REACH_CHECKPOINT_MESSAGE);
             } catch (IsNotCheckPointException exception) {}
         }
+    }
+
+    private void playerReachCheckPoint(Player player, User user) {
+        areaService.reachCheckPoint(user.getUUID(), PluginUtils.mapPointFromLocation(player.getLocation()));
+    }
+
+    private void winArea(Player player, User user) {
+        player.sendMessage(WIN_MESSAGE);
+        areaService.win(user.getUUID());
+    }
+
+    private boolean playerReachEndPoint(Player player, Area area) {
+        return PluginUtils.mapPointFromLocation(player.getLocation()).equals(area.getEnd());
     }
 }
