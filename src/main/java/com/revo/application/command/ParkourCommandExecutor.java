@@ -3,6 +3,7 @@ package com.revo.application.command;
 import com.revo.application.InstanceManager;
 import com.revo.application.utils.PluginUtils;
 import com.revo.domain.Area;
+import com.revo.domain.Point;
 import com.revo.domain.exception.AreaNameInUseException;
 import com.revo.domain.exception.AreaNotFoundException;
 import com.revo.domain.port.AreaService;
@@ -23,6 +24,8 @@ public class ParkourCommandExecutor implements CommandExecutor {
     private static final String START_ARGUMENT = "start";
     private static final String END_ARGUMENT = "end";
     private static final String DELETE_ARGUMENT = "delete";
+    private static final String CHECKPOINT_ARGUMENT = "checkpoint";
+    private static final Object SET_ARGUMENT = "set";
 
     private final AreaService areaService;
 
@@ -61,8 +64,32 @@ public class ParkourCommandExecutor implements CommandExecutor {
                     return true;
                 }
             }
+            if(args.length == 3){
+                if(isCheckPointSetArgument(args[0], args[1])){
+                    setCheckPoint(sender, args[2]);
+                    return true;
+                }
+            }
         }
         return false;
+    }
+
+    private void setCheckPoint(CommandSender sender, String name) {
+        if(isConsole(sender)){
+            sendOnlyForPlayerMessage(sender);
+            return;
+        }
+        try{
+            Player player = (Player) sender;
+            Point point = PluginUtils.mapPointFromLocation(player.getLocation());
+            areaService.setCheckPoint(name, point);
+        } catch (AreaNotFoundException exception){
+            sendNotFoundAreaMessage(name, sender);
+        }
+    }
+
+    private boolean isCheckPointSetArgument(String firstArgument, String secondArgument) {
+        return Objects.equals(firstArgument, CHECKPOINT_ARGUMENT) && Objects.equals(secondArgument, SET_ARGUMENT);
     }
 
     private void deleteArea(CommandSender sender, String name) {
@@ -172,6 +199,7 @@ public class ParkourCommandExecutor implements CommandExecutor {
         sendMessage(sender, "&a/parkour start [name] - sets area start point");
         sendMessage(sender, "&a/parkour end [name] - sets area end point");
         sendMessage(sender, "&a/parkour delete [name] - deletes area");
+        sendMessage(sender, "&a/parkour checkpoint set [name] - sets checkpoint in area");
     }
 
     private void sendMessage(CommandSender sender, String message){

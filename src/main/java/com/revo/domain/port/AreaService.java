@@ -16,9 +16,9 @@ public interface AreaService {
 
     void setEnd(String UUID, String name, Point point);
 
-    void setCheckPoint(String UUID, String name, Point point);
+    void setCheckPoint(String name, Point point);
 
-    void removeCheckPoint(String UUID, String name, Point point);
+    void removeCheckPoint(String name, Point point);
 
     void joinToArea(String UUID, String areaName);
 

@@ -98,7 +98,7 @@ public class AreaServiceImp implements AreaService {
     }
 
     @Override
-    public void setCheckPoint(String UUID, String name, Point point) {
+    public void setCheckPoint(String name, Point point) {
         Area area = getArea(name);
         addCheckPointInArea(point, area);
         save(area);
@@ -110,7 +110,7 @@ public class AreaServiceImp implements AreaService {
     }
 
     @Override
-    public void removeCheckPoint(String UUID, String name, Point point) {
+    public void removeCheckPoint(String name, Point point) {
         Area area = getArea(name);
         removeCheckPointInArea(point, area);
     }
